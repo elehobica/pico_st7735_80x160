@@ -207,7 +207,7 @@ int main()
         printf("=: decrease back light\n");
         printf("r: repeat demo\n");
 
-        // OK blink
+        // Demo end (Text Scroll & Serial command)
         for (int i = 0; ; i++) {
             int c = getchar_timeout_us(0);
             switch (c) {
