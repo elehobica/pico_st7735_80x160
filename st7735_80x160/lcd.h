@@ -22,7 +22,7 @@
 
 #define USE_HORIZONTAL 2  //设置横屏或者竖屏显示 0或1为竖屏 2或3为横屏
 #define RGB_ORDER 1 // 0: RGB, 1: BGR
-#define HAS_BLK_CNTL    1
+#define HAS_BLK_CNTL    0
 
 #if USE_HORIZONTAL==0||USE_HORIZONTAL==1
 #define LCD_W 80
