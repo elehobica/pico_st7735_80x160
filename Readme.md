@@ -27,6 +27,8 @@ This project supports:
 | 18 | GND | GND | GND |
 | 36 | 3V3(OUT) | 3.3V | VCC |
 
+![ST7735S_schematic](doc/pico_st7735_80x160_schematic.png)
+
 ### Serial (CP2102 module)
 | Pico Pin # | Pin Name | Function | CP2102 module |
 ----|----|----|----
@@ -62,3 +64,6 @@ When scrolling text display appears at demo final, program accepts Serial Termin
 * '+' to increase backlight level
 * '-' to decrease backlight level
 * 'r' to repeat demo
+
+## Application Example
+* [RPi_Pico_WAV_Player](https://github.com/elehobica/RPi_Pico_WAV_Player)
