@@ -32,30 +32,32 @@ void testtexts()
 
 void testoverlaytexts()
 {
-    LCD_ShowStringLnOL(0, 0*16, 0*8, 17*8, "Raspberry Pi Pico", BLACK);
-    LCD_ShowStringLnOL(0, 2*16, 0*8, 17*8, "Raspberry Pi Pico", LIGHTBLUE);
-    LCD_ShowStringLnOL(0, 4*16, 0*8, 17*8, "Raspberry Pi Pico", GRAYBLUE);
+    LCD_ShowStringLn(0, 0*16, 0*8, 17*8, "Raspberry Pi Pico", 1, BLACK);
+    LCD_ShowStringLn(0, 2*16, 0*8, 17*8, "Raspberry Pi Pico", 1, LIGHTBLUE);
+    LCD_ShowStringLn(0, 4*16, 0*8, 17*8, "Raspberry Pi Pico", 1, GRAYBLUE);
 }
 
-void testscrolltexts(int i, int bl_val)
+void testscrolltexts(int i, int bl_val, u8 rotation)
 {
     char str[16];
     static uint16_t sft0 = 0;
     static uint16_t sft1 = 0;
 
-    LCD_Scroll_ShowString(0, 1*16, 0*16, LCD_W-1, "Raspberry Pi Pico is a tiny, fast, and versatile board built using RP2040.", GRED, &sft0, i);
-    LCD_Scroll_ShowString(0, 3*16, 0*16, LCD_W-1, "RP2040 features a dual-core Arm Cortex-M0+ processor with 264KB internal RAM and support for up to 16MB of off-chip Flash.", GBLUE, &sft1, i);
-    sprintf(str, "%3d", bl_val);
-    LCD_ShowString(8*16+8,  4*16, (u8 *) str, WHITE);
+    LCD_Scroll_ShowString(0, 0*16, 0*16, LCD_W()-1, "Raspberry Pi Pico is a tiny, fast, and versatile board built using RP2040.", 0, GRED, &sft0, i);
+    LCD_Scroll_ShowString(0, 2*16, 0*16, LCD_W()-1, "RP2040 features a dual-core Arm Cortex-M0+ processor with 264KB internal RAM and support for up to 16MB of off-chip Flash.", 0, GBLUE, &sft1, i);
+    sprintf(str, "Rot: %d", (int) rotation);
+    LCD_ShowString(0,  3*16, (u8 *) str, WHITE);
+    sprintf(str, "BL: %3d", bl_val);
+    LCD_ShowString(0,  4*16, (u8 *) str, WHITE);
 
 }
 
 void testpoints(uint16_t color1, uint16_t color2)
 {
     LCD_Clear(BLACK);
-    for (int16_t y=4; y < LCD_H; y+=8) {
-        for (int16_t x=4; x < LCD_W; x+=8) {
-            if (x == 4 || y == 4 || x >= LCD_W-8 || y >= LCD_H-8) {
+    for (int16_t y=4; y < LCD_H(); y+=8) {
+        for (int16_t x=4; x < LCD_W(); x+=8) {
+            if (x == 4 || y == 4 || x >= LCD_W()-8 || y >= LCD_H()-8) {
                 LCD_DrawPoint_big(x, y, color2);
             } else {
                 LCD_DrawPoint(x, y, color1);
@@ -67,42 +69,42 @@ void testpoints(uint16_t color1, uint16_t color2)
 void testlines(uint16_t color)
 {
     LCD_Clear(BLACK);
-    for (int16_t x=0; x < LCD_W; x+=6) {
-        LCD_DrawLine(0, 0, x, LCD_H-1, color);
+    for (int16_t x=0; x < LCD_W(); x+=6) {
+        LCD_DrawLine(0, 0, x, LCD_H()-1, color);
         sleep_ms(0);
     }
-    for (int16_t y=0; y < LCD_H; y+=6) {
-        LCD_DrawLine(0, 0, LCD_W-1, y, color);
-        sleep_ms(0);
-    }
-
-    LCD_Clear(BLACK);
-    for (int16_t x=0; x < LCD_W; x+=6) {
-        LCD_DrawLine(LCD_W-1, 0, x, LCD_H-1, color);
-        sleep_ms(0);
-    }
-    for (int16_t y=0; y < LCD_H; y+=6) {
-        LCD_DrawLine(LCD_W-1, 0, 0, y, color);
+    for (int16_t y=0; y < LCD_H(); y+=6) {
+        LCD_DrawLine(0, 0, LCD_W()-1, y, color);
         sleep_ms(0);
     }
 
     LCD_Clear(BLACK);
-    for (int16_t x=0; x < LCD_W; x+=6) {
-        LCD_DrawLine(0, LCD_H-1, x, 0, color);
+    for (int16_t x=0; x < LCD_W(); x+=6) {
+        LCD_DrawLine(LCD_W()-1, 0, x, LCD_H()-1, color);
         sleep_ms(0);
     }
-    for (int16_t y=0; y < LCD_H; y+=6) {
-        LCD_DrawLine(0, LCD_H-1, LCD_W-1, y, color);
+    for (int16_t y=0; y < LCD_H(); y+=6) {
+        LCD_DrawLine(LCD_W()-1, 0, 0, y, color);
         sleep_ms(0);
     }
 
     LCD_Clear(BLACK);
-    for (int16_t x=0; x < LCD_W; x+=6) {
-        LCD_DrawLine(LCD_W-1, LCD_H-1, x, 0, color);
+    for (int16_t x=0; x < LCD_W(); x+=6) {
+        LCD_DrawLine(0, LCD_H()-1, x, 0, color);
         sleep_ms(0);
     }
-    for (int16_t y=0; y < LCD_H; y+=6) {
-        LCD_DrawLine(LCD_W-1, LCD_H-1, 0, y, color);
+    for (int16_t y=0; y < LCD_H(); y+=6) {
+        LCD_DrawLine(0, LCD_H()-1, LCD_W()-1, y, color);
+        sleep_ms(0);
+    }
+
+    LCD_Clear(BLACK);
+    for (int16_t x=0; x < LCD_W(); x+=6) {
+        LCD_DrawLine(LCD_W()-1, LCD_H()-1, x, 0, color);
+        sleep_ms(0);
+    }
+    for (int16_t y=0; y < LCD_H(); y+=6) {
+        LCD_DrawLine(LCD_W()-1, LCD_H()-1, 0, y, color);
         sleep_ms(0);
     }
 }
@@ -110,25 +112,25 @@ void testlines(uint16_t color)
 void testdrawrects(uint16_t color)
 {
     LCD_Clear(BLACK);
-    for (int16_t x=0; x < LCD_W; x+=6) {
-        LCD_DrawRectangle(LCD_W/2 -x/2, LCD_H/2 -x*LCD_H/2/LCD_W, LCD_W/2 -x/2 + x, LCD_H/2 -x*LCD_H/2/LCD_W + x*LCD_H/LCD_W, color);
+    for (int16_t x=0; x < LCD_W(); x+=6) {
+        LCD_DrawRectangle(LCD_W()/2 -x/2, LCD_H()/2 -x*LCD_H()/2/LCD_W(), LCD_W()/2 -x/2 + x, LCD_H()/2 -x*LCD_H()/2/LCD_W() + x*LCD_H()/LCD_W(), color);
     }
 }
 
 void testfillrects(uint16_t color1, uint16_t color2)
 {
     LCD_Clear(BLACK);
-    for (int16_t x=LCD_W-1; x > 8; x-=8) {
-        LCD_Fill(LCD_W/2 -x/2, LCD_H/2 -x*LCD_H/2/LCD_W, LCD_W/2 -x/2 + x, LCD_H/2 -x*LCD_H/2/LCD_W + x*LCD_H/LCD_W, color1);
-        LCD_DrawRectangle(LCD_W/2 -x/2, LCD_H/2 -x*LCD_H/2/LCD_W, LCD_W/2 -x/2 + x, LCD_H/2 -x*LCD_H/2/LCD_W + x*LCD_H/LCD_W, color2);
+    for (int16_t x=LCD_W()-1; x > 8; x-=8) {
+        LCD_Fill(LCD_W()/2 -x/2, LCD_H()/2 -x*LCD_H()/2/LCD_W(), LCD_W()/2 -x/2 + x, LCD_H()/2 -x*LCD_H()/2/LCD_W() + x*LCD_H()/LCD_W(), color1);
+        LCD_DrawRectangle(LCD_W()/2 -x/2, LCD_H()/2 -x*LCD_H()/2/LCD_W(), LCD_W()/2 -x/2 + x, LCD_H()/2 -x*LCD_H()/2/LCD_W() + x*LCD_H()/LCD_W(), color2);
     }
 }
 
 void testdrawcircles(uint8_t radius, uint16_t color1, uint16_t color2)
 {
     LCD_Clear(BLACK);
-    for (int16_t x=radius; x < LCD_W; x+=radius*2) {
-        for (int16_t y=radius; y < LCD_H; y+=radius*2) {
+    for (int16_t x=radius; x < LCD_W(); x+=radius*2) {
+        for (int16_t y=radius; y < LCD_H(); y+=radius*2) {
             Draw_Circle(x, y, radius, color1);
             for (int8_t r = radius-1; r > 0; r--) {
                 Draw_Circle(x, y, r, color2);
@@ -140,6 +142,7 @@ void testdrawcircles(uint8_t radius, uint16_t color1, uint16_t color2)
 int main()
 {
     const uint32_t TimeStay = 1000;
+    u8 rotation = 2;
 
     stdio_init_all();
 
@@ -172,12 +175,18 @@ int main()
     //printf("Type any character to start\n");
     //while (!uart_is_readable_within_us(uart0, 1000));
 
-    while (1) {
-        printf("========================\n");
-        printf("== pico_st7735_80x160 ==\n");
-        printf("========================\n");
+    printf("========================\n");
+    printf("== pico_st7735_80x160 ==\n");
+    printf("========================\n");
+    printf("-: ncrease back light\n");
+    printf("=: decrease back light\n");
+    printf("r: repeat demo\n");
 
-        Lcd_Init();
+    LCD_Init();
+
+    while (1) {
+        LCD_SetRotation(rotation);
+
         LCD_Clear(BLACK);
         BACK_COLOR=BLACK;
 
@@ -203,12 +212,9 @@ int main()
         sleep_ms(TimeStay);
 
         LCD_Clear(BLACK);
-        printf("-: ncrease back light\n");
-        printf("=: decrease back light\n");
-        printf("r: repeat demo\n");
 
         // Demo end (Text Scroll & Serial command)
-        for (int i = 0; ; i++) {
+        for (int i = 0; i < 512; i++) {
             int c = getchar_timeout_us(0);
             switch (c) {
                 case '-':
@@ -223,10 +229,11 @@ int main()
                 default:
                     break;
             }
-            if (c == 'r') break; // repeat demo
-            testscrolltexts(i, bl_val);
+            //if (c == 'r') break; // repeat demo
+            testscrolltexts(i, bl_val, rotation);
             sleep_ms(2);
         }
+        rotation = (rotation + 1) & 0x3;
     }
     printf("\nDone\n");
 

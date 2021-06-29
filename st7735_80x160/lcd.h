@@ -6,6 +6,13 @@
 #include "hardware/spi.h"
 #include "hardware/clocks.h"
 
+typedef unsigned char  u8;
+typedef unsigned short u16;
+typedef unsigned long  u32;
+typedef char  i8;
+typedef short i16;
+typedef long  i32;
+
 // SPI Setting
 #define SPI_INST        spi1
 #define SPI_CLK_FREQ    (30 * MHZ)
@@ -19,26 +26,17 @@
 #define PIN_LCD_BLK     9
 
 
-
-#define USE_HORIZONTAL 2  //设置横屏或者竖屏显示 0或1为竖屏 2或3为横屏
 #define RGB_ORDER 1 // 0: RGB, 1: BGR
 #define HAS_BLK_CNTL    0
 
-#if USE_HORIZONTAL==0||USE_HORIZONTAL==1
-#define LCD_W 80
-#define LCD_H 160
-#else
-#define LCD_W 160
-#define LCD_H 80
-#endif
-
-typedef unsigned char u8;
-typedef unsigned int u16;
-typedef unsigned long u32;    			
-
-#define FRAME_SIZE  25600
+#define LCD_WIDTH 160
+#define LCD_HEIGHT 80
 
 //-----------------OLED端口定义---------------- 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define OLED_SCLK_Clr() 
 #define OLED_SCLK_Set() 
 
@@ -73,8 +71,11 @@ void LCD_WR_DATA8(u8 dat);
 void LCD_WR_DATA(u16 dat);
 void LCD_WR_REG(u8 dat);
 void LCD_Address_Set(u16 x1,u16 y1,u16 x2,u16 y2);
-void Lcd_Init(void);
+void LCD_Init(void);
 void LCD_Clear(u16 Color);
+void LCD_SetRotation(u8 rot);
+u16 LCD_W();
+u16 LCD_H();
 void LCD_ShowChinese(u16 x,u16 y,u8 index,u8 size,u16 color);
 void LCD_DrawPoint(u16 x,u16 y,u16 color);
 void LCD_DrawPoint_big(u16 x,u16 y,u16 color);
@@ -87,7 +88,7 @@ void LCD_ShowString(u16 x,u16 y,const u8 *p,u16 color);
 u32 mypow(u8 m,u8 n);
 void LCD_ShowNum(u16 x,u16 y,u16 num,u8 len,u16 color);
 void LCD_ShowNum1(u16 x,u16 y,float num,u8 len,u16 color);
-void LCD_ShowPicture(u16 x1, u16 y1, u16 x2, u16 y2);
+void LCD_ShowPicture(u16 x1, u16 y1, u16 x2, u16 y2, u8* image);
 
 
 //画笔颜色
@@ -122,5 +123,9 @@ void LCD_ShowPicture(u16 x1, u16 y1, u16 x2, u16 y2);
 #define DARKGREEN        0x03E0
 
 #define DARKRED          0x7800
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

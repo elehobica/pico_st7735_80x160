@@ -4,6 +4,12 @@
 extern const u8 asc2_1608[1520];
 extern unsigned char *image; // 80*80*2
 
+__attribute__((weak))
+u16 LCD_GetBackground(u16 x, u16 y)
+{
+	return 0;
+}
+
 // Show 16x16 ICON
 // mode: 0: non-overlay, 1: overlay
 void LCD_ShowIcon(u16 x,u16 y,u8 index,u8 mode,u16 color)
@@ -11,41 +17,22 @@ void LCD_ShowIcon(u16 x,u16 y,u8 index,u8 mode,u16 color)
     u8 pos,t;
 	u8 *temp,size1;
 	u8 size = 16;
+	if (index == ICON16x16_UNDEF) { return; }
 	temp=Icon16;
 	LCD_Address_Set(x,y,x+size-1,y+size-1); //设置一个汉字的区域
 	size1=size*size/8;//一个汉字所占的字节
 	temp+=index*size1;//写入的起始位置
-	if(!mode)
-	{
-		for(pos=0;pos<size1;pos++)
-		{
-			for(t=0;t<8;t++)
-			{
-				if((*temp&(1<<t))!=0)//从数据的低位开始读
-				{
-					LCD_WR_DATA(color);//点亮
-				}
-				else
-				{
-					LCD_WR_DATA(BACK_COLOR);//不点亮
-				}
+	for (pos=0;pos<size1;pos++) {
+		for (t=0;t<8;t++) {
+			if ((*temp&(1<<t))!=0) {//从数据的低位开始读
+				LCD_WR_DATA(color);//点亮
+			} else if (!mode) {
+				LCD_WR_DATA(BACK_COLOR);//不点亮
+			} else {
+				LCD_WR_DATA(LCD_GetBackground(x+(pos%2)*8+t, y+pos/2));
 			}
-			temp++;
 		}
-	}
-	else
-	{
-		for(pos=0;pos<size1;pos++)
-		{
-			for(t=0;t<8;t++)
-			{
-				if((*temp&(1<<t))!=0)//从数据的低位开始读
-				{
-					LCD_DrawPoint(x+(pos%2)*8+t,y+pos/2,color);
-				}
-			}
-			temp++;
-		}
+		temp++;
 	}
 }
 
@@ -53,78 +40,52 @@ void LCD_ShowIcon(u16 x,u16 y,u8 index,u8 mode,u16 color)
 // num: char code
 // mode: 0: non-overlay, 1: overlay
 // color: Color
-void LCD_ShowPartialChar(int16_t x,int16_t y,u16 x_min,u16 x_max,u16 y_min,u16 y_max,u8 num,u8 mode,u16 color)
+void LCD_ShowPartialChar(i16 x,i16 y,u16 x_min,u16 x_max,u16 y_min,u16 y_max,u8 num,u8 mode,u16 color)
 {
     u8 temp;
     u8 pos,t;
-	int16_t x0=x;
-	if(x<-8+1||y<-16+1)return;
-    if(x>LCD_W-1||y>LCD_H-1)return;
+	i16 x0=x;
+	if (x<-8+1 || y<-16+1) { return; }
+    if (x>LCD_W()-1 || y>LCD_H()-1) { return; }
 	num=num-' ';
-	x_min = ((int32_t) x >= (int32_t) x_min) ? (u16) x : x_min;
-	y_min = ((int32_t) y >= (int32_t) y_min) ? (u16) y : y_min;
-	x_max = ((int32_t) x+8-1 <= (int32_t) x_max) ? (u16) (x+8-1) : x_max;
-	y_max = ((int32_t) y+16-1 <= (int32_t) y_max) ? (u16) (y+16-1) : y_max;
+	x_min = ((i32) x >= (i32) x_min) ? (u16) x : x_min;
+	y_min = ((i32) y >= (i32) y_min) ? (u16) y : y_min;
+	x_max = ((i32) x+8-1 <= (i32) x_max) ? (u16) (x+8-1) : x_max;
+	y_max = ((i32) y+16-1 <= (i32) y_max) ? (u16) (y+16-1) : y_max;
 	LCD_Address_Set(x_min,y_min,x_max,y_max);
-	if(!mode)
-	{
-		for(pos=0;pos<16;pos++)
-		{
-			temp=asc2_1608[(u16)num*16+pos];
-			for(t=0;t<8;t++)
-		    {
-				if ((int32_t) x >= (int32_t) x_min && (int32_t) x <= (int32_t) x_max &&
-					(int32_t) y >= (int32_t) y_min && (int32_t) y <= (int32_t) y_max) {
-					if(temp&0x01)LCD_WR_DATA(color);
-					else LCD_WR_DATA(BACK_COLOR);
+	for (pos=0;pos<16;pos++) {
+		temp=asc2_1608[(u16)num*16+pos];
+		for (t=0;t<8;t++) {
+			if ((i32) x >= (i32) x_min && (i32) x <= (i32) x_max &&
+				(i32) y >= (i32) y_min && (i32) y <= (i32) y_max) {
+				if (temp&0x01) {
+					LCD_WR_DATA(color);
+				} else if (!mode) {
+					LCD_WR_DATA(BACK_COLOR);
+				} else {
+					LCD_WR_DATA(LCD_GetBackground(x_min+t, y_min+pos));
 				}
-				temp>>=1;
-				x++;
-		    }
-			x=x0;
-			y++;
+			}
+			temp>>=1;
+			x++;
 		}
-	}else
-	{
-		for(pos=0;pos<16;pos++)
-		{
-		    temp=asc2_1608[(u16)num*16+pos];
-			for(t=0;t<8;t++)
-		    {
-				if ((int32_t) x >= (int32_t) x_min && (int32_t) x <= (int32_t) x_max &&
-					(int32_t) y >= (int32_t) y_min && (int32_t) y <= (int32_t) y_max) {
-			        if(temp&0x01)LCD_DrawPoint(x+t,y+pos,color);
-				}
-		        temp>>=1;
-		    }
-		}
+		x=x0;
+		y++;
 	}
 }
 
 // Show String within one line from x_min to x_max
+// mode: 0: non-overlay, 1: overlay
 // return: 0: column not overflow, column overflowed
-u16 LCD_ShowStringLn(int16_t x,int16_t y,u16 x_min,u16 x_max,const u8 *p,u16 color)
+u16 LCD_ShowStringLn(i16 x,i16 y,u16 x_min,u16 x_max,const u8 *p,u8 mode,u16 color)
 {
 	u16 res = 0;
-    while(*p!='\0')
-    {
-        LCD_ShowPartialChar(x,y,x_min,x_max,0,LCD_H-1,*p,0,color);
-        if((int32_t) x > (int32_t) x_max-7){res=1;break;}
-        x+=8;
-        p++;
-    }
-	return res;
-}
-
-// Show String within one line from x_min to x_max with Overlay
-// return: 0: column not overflow, column overflew
-u16 LCD_ShowStringLnOL(int16_t x,int16_t y,u16 x_min,u16 x_max,const u8 *p,u16 color)
-{
-	u16 res = 0;
-    while(*p!='\0')
-    {
-        LCD_ShowPartialChar(x,y,x_min,x_max,0,LCD_H-1,*p,1,color);
-		if((int32_t) x >(int32_t) x_max-7){res=1;break;}
+    while (*p!='\0') {
+        LCD_ShowPartialChar(x,y,x_min,x_max,0,LCD_H()-1,*p,mode,color);
+        if ((i32) x > (i32) x_max-7) {
+			res=1;
+			break;
+		}
         x+=8;
         p++;
     }
@@ -132,25 +93,25 @@ u16 LCD_ShowStringLnOL(int16_t x,int16_t y,u16 x_min,u16 x_max,const u8 *p,u16 c
 }
 
 // Show String within one line from x_min to x_max with Auto-Scroll
-// When string is within one line, write in overlay (Non-scroll)
-// Otherwise, write in non-overlay (Scroll)
-void LCD_Scroll_ShowString(u16 x, u16 y, u16 x_min, u16 x_max, u8 *p, u16 color, uint16_t *sft_val, uint32_t tick)
+// mode: 0: non-overlay, 1: overlay
+void LCD_Scroll_ShowString(u16 x, u16 y, u16 x_min, u16 x_max, u8 *p, u8 mode, u16 color, u16 *sft_val, u32 tick)
 {
     if (*sft_val == 0) { // Head display
-        if (LCD_ShowStringLnOL(x,  y, x_min, x_max, (u8 *) p, color) && (tick % 16 == 0)) {
-            LCD_ShowStringLn(x,  y, x_min, x_max, (u8 *) p, color);
+        if (LCD_ShowStringLn(x,  y, x_min, x_max, (u8 *) p, mode, color) && (tick % 32 == 16)) {
+            //LCD_ShowStringLn(x,  y, x_min, x_max, (u8 *) p, color);
             (*sft_val)++;
         }
     } else {
         if (((x + *sft_val)%8) != 0) {
             // delete head & tail  gabage
-            LCD_ShowString(x, y, (u8 *) " ", color);
-            LCD_ShowString(LCD_W-8, y, (u8 *) " ", color);
+            //LCD_ShowString(x, y, (u8 *) " ", color);
+            //LCD_ShowString(LCD_W()-8, y, (u8 *) " ", color);
         }
-		if (LCD_ShowStringLn((int16_t) x - (*sft_val)%8, y, x_min, x_max, (u8 *) &p[(*sft_val)/8], color)) {
+        //if (LCD_ShowStringLn((i16) x - (*sft_val)%8, y, x_min, x_max, (u8 *) &p[(*sft_val)/8], color)) {
+        if (LCD_ShowStringLn((i16) x - (*sft_val)%8, y, x_min, x_max, (u8 *) &p[(*sft_val)/8], mode, color)) {
             (*sft_val)++;
-        } else if (tick % 16 == 7) { // Tail display returns back to Head display
-            LCD_ShowStringLn(x,  y, x_min, x_max, (u8 *) p, color);
+        } else if (tick % 32 == 23) { // Tail display returns back to Head display
+            //LCD_ShowStringLn(x,  y, x_min, x_max, (u8 *) p, color);
             *sft_val = 0;
         }
     }
@@ -222,5 +183,18 @@ void LCD_ShowDimPictureOfs(u16 x1, u16 y1, u16 x2, u16 y2, u8 dim, u16 ofs_x, u1
 	}
 }
 
-
-
+// mode: 0: non-overlay (color), 1: overlay (background image)
+void LCD_FillBackground(u16 xsta,u16 ysta,u16 xend,u16 yend,u8 mode,u16 color)
+{
+	if (!mode) {
+		LCD_Fill(xsta, ysta, xend, yend, color);
+		return;
+	}
+	u16 x,y;
+	LCD_Address_Set(xsta,ysta,xend,yend);      //设置光标位置
+	for (y=ysta;y<=yend;y++) {
+		for (x=xsta;x<=xend;x++) {
+			LCD_WR_DATA(LCD_GetBackground(x, y));
+		}
+	}
+}
