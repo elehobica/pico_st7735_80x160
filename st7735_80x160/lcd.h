@@ -13,17 +13,28 @@ typedef char  i8;
 typedef short i16;
 typedef long  i32;
 
+//#define BOARD_WAVESHARE_RP2040_LCD_096 // Uncomment when Waveshare RP2040-LCD-0.96
+
 // SPI Setting
 #define SPI_INST        spi1
 #define SPI_CLK_FREQ    (30 * MHZ)
 
 // Pin Setting
-#define PIN_LCD_CS      13
-#define PIN_LCD_SCK     10
-#define PIN_LCD_MOSI    11
-#define PIN_LCD_DC      14
-#define PIN_LCD_RST     15
-#define PIN_LCD_BLK     9
+#if defined(BOARD_WAVESHARE_RP2040_LCD_096)
+    #define PIN_LCD_CS      9
+    #define PIN_LCD_SCK     10
+    #define PIN_LCD_MOSI    11
+    #define PIN_LCD_DC      8
+    #define PIN_LCD_RST     12
+    #define PIN_LCD_BLK     25
+#else // Raspberry Pi Pico Board
+    #define PIN_LCD_CS      13
+    #define PIN_LCD_SCK     10
+    #define PIN_LCD_MOSI    11
+    #define PIN_LCD_DC      14
+    #define PIN_LCD_RST     15
+    #define PIN_LCD_BLK     9
+#endif // #if defined(BOARD_WAVESHARE_RP2040_LCD_096)
 
 
 #define RGB_ORDER 1 // 0: RGB, 1: BGR

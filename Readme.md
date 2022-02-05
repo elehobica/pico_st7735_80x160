@@ -1,4 +1,5 @@
 ![ST7735 Test](doc/pico_st7735_80x160_breadboard.jpg)
+![waveshare_rp2040_lcd_096](doc/waveshare_rp2040-lcd-096.jpg)
 
 # Raspberry Pi Pico ST7735 80x160 LCD Test
 
@@ -12,9 +13,10 @@ This project supports:
 ## Supported Board
 * Raspberry Pi Pico
 * ST7735S 80x160 LCD
+* Waveshare RP2040-LCD-0.96 Board (ST7735S 80x160 LCD build-in)
 
 ## Pin Assignment
-### ST7735S 80x160 LCD
+### ST7735S 80x160 LCD (Raspberry Pi Pico Board)
 
 | Pico Pin # | Pin Name | Function | ST7735S 80x160 Board |
 ----|----|----|----
@@ -28,6 +30,19 @@ This project supports:
 | 36 | 3V3(OUT) | 3.3V | VCC |
 
 ![ST7735S_schematic](doc/pico_st7735_80x160_schematic.png)
+
+### ST7735S 80x160 LCD (Waveshare RP2040-LCD-0.96 Board)
+
+Uncomment #define BOARD_WAVESHARE_RP2040_LCD_096 in lcd.h
+
+| Pin # | Pin Name | Function | Signal Name |
+----|----|----|----
+|11 | GP8 | GPIO | DC |
+|12 | GP9 | SPI1_CSn | CS |
+|14 | GP10 | SPI1_SCK | SCL |
+|15 | GP11 | SPI1_TX | DIN |
+|16 | GP12 | GPIO | RST |
+|-- | GP25 | GPIO | BL |
 
 ### Serial (CP2102 module)
 | Pico Pin # | Pin Name | Function | CP2102 module |
