@@ -1,29 +1,15 @@
-cmake_minimum_required(VERSION 3.12)
+if (NOT TARGET pico_st7735_80x160)
+    add_library(pico_st7735_80x160 INTERFACE)
 
-set(PICO_SDK_PATH ${CMAKE_CURRENT_LIST_DIR}/../pico-sdk)
-include(pico_sdk_import.cmake)
+    target_sources(pico_st7735_80x160 INTERFACE
+        ${CMAKE_CURRENT_LIST_DIR}/lcd.c
+        ${CMAKE_CURRENT_LIST_DIR}/my_lcd.c
+    )
 
-set(project_name "pico_st7735_80x160")
-project(${project_name})
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 17)
-
-pico_sdk_init()
-
-add_subdirectory(st7735_80x160)
-
-set(bin_name "pico_st7735_80x160")
-add_executable(${bin_name}
-    main.c
-)
-
-pico_enable_stdio_usb(${bin_name} 0)
-pico_enable_stdio_uart(${bin_name} 1)
-
-target_link_libraries(${bin_name} PRIVATE
-    pico_stdlib
-    hardware_uart
-    hardware_pwm
-    st7735_80x160
-)
-pico_add_extra_outputs(${bin_name})
+    target_link_libraries(pico_st7735_80x160 INTERFACE
+        hardware_clocks
+        hardware_spi
+        pico_stdlib
+    )
+    target_include_directories(pico_st7735_80x160 INTERFACE ${CMAKE_CURRENT_LIST_DIR})
+endif()

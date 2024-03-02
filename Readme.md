@@ -1,14 +1,14 @@
 ![ST7735 Test](doc/pico_st7735_80x160_breadboard.jpg)
 ![waveshare_rp2040_lcd_096](doc/waveshare_rp2040-lcd-096.jpg)
 
-# Raspberry Pi Pico ST7735 80x160 LCD Test
+# Raspberry Pi Pico ST7735 80x160 LCD Library
 
 ## Overview
-This project is LCD display demo for ST7735 80x160.
+ST7735 80x160 LCD display library for Raspberry Pi Pico
 
 This project supports:
-* ST7735 80x160 LCD Demo
-* Backlight Control by PWM
+* ST7735 80x160 LCD
+* Backlight control by PWM
 
 ## Supported Board
 * Raspberry Pi Pico
@@ -53,20 +53,22 @@ Uncomment #define BOARD_WAVESHARE_RP2040_LCD_096 in lcd.h
 
 ## How to build
 * See ["Getting started with Raspberry Pi Pico"](https://datasheets.raspberrypi.org/pico/getting-started-with-pico.pdf)
-* Build is confirmed only in Developer Command Prompt for VS 2019 and Visual Studio Code on Windows enviroment
-* Put "pico-sdk" and "pico-examples" on the same level with this project folder.
+* Put "pico-sdk", "pico-examples" and "pico-extras" on the same level with this project folder.
+* Set environmental variables for PICO_SDK_PATH, PICO_EXTRAS_PATH and PICO_EXAMPLES_PATH
+* Build is confirmed in Developer Command Prompt for VS 2022 and Visual Studio Code on Windows enviroment
+* Confirmed with Pico SDK 1.5.1, cmake-3.27.2-windows-x86_64 and gcc-arm-none-eabi-10.3-2021.10-win32
 ```
-> git clone -b master https://github.com/raspberrypi/pico-sdk.git
+> git clone -b 1.5.1 https://github.com/raspberrypi/pico-sdk.git
 > cd pico-sdk
 > git submodule update -i
 > cd ..
-> git clone -b master https://github.com/raspberrypi/pico-examples.git
-> 
+> git clone -b sdk-1.5.1 https://github.com/raspberrypi/pico-examples.git
+>
 > git clone -b main https://github.com/elehobica/pico_st7735_80x160.git
 ```
-* Lanuch "Developer Command Prompt for VS 2019"
+* Lanuch "Developer Command Prompt for VS 2022"
 ```
-> cd pico_st7735_80x160
+> cd pico_st7735_80x160\test
 > mkdir build
 > cd build
 > cmake -G "NMake Makefiles" ..
