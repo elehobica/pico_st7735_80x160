@@ -1,5 +1,4 @@
-#ifndef __MY_LCD_H
-#define __MY_LCD_H
+#pragma once
 
 #include "lcd.h"
 
@@ -32,9 +31,3 @@ void LCD_FillBackground(u16 xsta,u16 ysta,u16 xend,u16 yend,u8 mode,u16 color);
 #define ICON16x16_CHECKED   9
 #define ICON16x16_LEFTARROW 10
 #define ICON16x16_UNDEF     255
-
-#endif
-
-
-
-

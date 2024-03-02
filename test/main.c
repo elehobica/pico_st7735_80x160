@@ -4,7 +4,7 @@
 #include "pico/stdlib.h"
 #include "hardware/uart.h"
 #include "hardware/pwm.h"
-#include "my_lcd.h"
+#include "lcd_extra.h"
 
 static void error_blink(uint led, int count)
 {
