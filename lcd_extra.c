@@ -1,4 +1,6 @@
 #include "lcd_extra.h"
+
+#include "lcd_private.h"
 #include "iconfont.h"
 
 extern const u8 asc2_1608[1520];

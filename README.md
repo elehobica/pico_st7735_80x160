@@ -76,6 +76,29 @@ Uncomment #define BOARD_WAVESHARE_RP2040_LCD_096 in lcd.h
 ```
 * Put "pico_st7735_80x160.uf2" on RPI-RP2 drive
 
+## Configuration
+Configure library settings by `LCD_Config()` with `pico_st7735_80x160_config_t`
+
+```
+pico_st7735_80x160_config_t lcd_cfg = {
+    SPI_CLK_FREQ_DEFAULT,
+    spi1,
+    PIN_LCD_SPI1_CS_DEFAULT,
+    PIN_LCD_SPI1_SCK_DEFAULT,
+    PIN_LCD_SPI1_MOSI_DEFAULT,
+    PIN_LCD_DC_DEFAULT,
+    PIN_LCD_RST_DEFAULT,
+    PIN_LCD_BLK_DEFAULT,
+    INVERSION_DEFAULT,  // 0: non-color-inversion, 1: color-inversion
+    RGB_ORDER_DEFAULT,  // 0: RGB, 1: BGR
+    ROTATION_DEFAULT,
+    H_OFS_DEFAULT,
+    V_OFS_DEFAULT,
+    X_MIRROR_DEFAULT
+};
+LCD_Config(&lcd_cfg);
+```
+
 ## Backlight Control from Serial Terminal
 When scrolling text display appears at demo final, program accepts Serial Terminal control.
 * '+' to increase backlight level

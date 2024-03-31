@@ -1,8 +1,5 @@
-#ifndef __LCD_H
-#define __LCD_H
+#pragma once
 
-#include "pico.h"
-#include "pico/stdlib.h"
 #include "hardware/spi.h"
 #include "hardware/clocks.h"
 
@@ -13,75 +10,68 @@ typedef char  i8;
 typedef short i16;
 typedef long  i32;
 
-//#define BOARD_WAVESHARE_RP2040_LCD_096 // Uncomment when Waveshare RP2040-LCD-0.96
+#ifndef SPI_CLK_FREQ_DEFAULT
+#define SPI_CLK_FREQ_DEFAULT        (50 * MHZ)
+#endif
 
-// SPI Setting
-#define SPI_INST        spi1
-#define SPI_CLK_FREQ    (30 * MHZ)
+#ifndef SPI_INST_DEFAULT
+#define SPI_INST_DEFAULT            1   // 0: spi0, 1: spi1
+#endif
 
-// Pin Setting
-#if defined(BOARD_WAVESHARE_RP2040_LCD_096)
-    #define PIN_LCD_CS      9
-    #define PIN_LCD_SCK     10
-    #define PIN_LCD_MOSI    11
-    #define PIN_LCD_DC      8
-    #define PIN_LCD_RST     12
-    #define PIN_LCD_BLK     25
-#else // Raspberry Pi Pico Board
-    #define PIN_LCD_CS      13
-    #define PIN_LCD_SCK     10
-    #define PIN_LCD_MOSI    11
-    #define PIN_LCD_DC      14
-    #define PIN_LCD_RST     15
-    #define PIN_LCD_BLK     9
-#endif // #if defined(BOARD_WAVESHARE_RP2040_LCD_096)
+// pin assignment
+#define PIN_LCD_SPI1_CS_DEFAULT     13  //  9, 13
+#define PIN_LCD_SPI1_SCK_DEFAULT    10  // 10, 14
+#define PIN_LCD_SPI1_MOSI_DEFAULT   11  // 11, 15
+#define PIN_LCD_DC_DEFAULT          14  // any GPIO
+#define PIN_LCD_RST_DEFAULT         15  // any GPIO
+#define PIN_LCD_BLK_DEFAULT         9   // any GPIO
 
+#define PIN_LCD_SPI0_CS_DEFAULT     5   //  1,  5, 17
+#define PIN_LCD_SPI0_SCK_DEFAULT    2   //  2,  6, 18
+#define PIN_LCD_SPI0_MOSI_DEFAULT   3   //  3,  7, 19
 
-#define RGB_ORDER 1 // 0: RGB, 1: BGR
-#define HAS_BLK_CNTL    0
+#define SPI_INST_WAVESHARE          1   // 0: spi0, 1: spi1
+#define PIN_LCD_SPI1_CS_WAVESHARE   9   //  9, 13
+#define PIN_LCD_SPI1_SCK_WAVESHARE  10  // 10, 14
+#define PIN_LCD_SPI1_MOSI_WAVESHARE 11  // 11, 15
+#define PIN_LCD_DC_WAVESHARE        8   // any GPIO
+#define PIN_LCD_RST_WAVESHARE       12  // any GPIO
+#define PIN_LCD_BLK_WAVESHARE       25  // any GPIO
 
-#define LCD_WIDTH 160
-#define LCD_HEIGHT 80
+#define INVERSION_DEFAULT           1   // 0: non-color-inversion, 1: color-inversion
+#define RGB_ORDER_DEFAULT           1   // 0: RGB, 1: BGR
+#define ROTATION_DEFAULT            2
+
+#define H_OFS_DEFAULT                +1  // 0, +1
+#define V_OFS_DEFAULT               +26  // +24, +26
+
+#define X_MIRROR_DEFAULT            0    // 0: non-x-mirror, 1: x-mirror
+
+typedef struct _pico_st7735_80x160_config_t {
+    uint       clk_freq;
+    spi_inst_t *spi_inst;  // spi0 or spi1
+    uint       pin_cs;
+    uint       pin_sck;
+    uint       pin_mosi;
+    uint       pin_dc;
+    uint       pin_rst;
+    uint       pin_blk;
+    bool       inversion;
+    u8         rgb_order;
+    u8         rotation;
+    i16        h_ofs;
+    i16        v_ofs;
+    u8         x_mirror;
+} pico_st7735_80x160_config_t;
 
 //-----------------OLED端口定义----------------
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define OLED_SCLK_Clr()
-#define OLED_SCLK_Set()
-
-#define OLED_SDIN_Clr()
-#define OLED_SDIN_Set()
-
-#define OLED_CS_Clr() gpio_put(PIN_LCD_CS, 0)
-#define OLED_CS_Set() gpio_put(PIN_LCD_CS, 1)
-
-#define OLED_RST_Clr() gpio_put(PIN_LCD_RST, 0)
-#define OLED_RST_Set() gpio_put(PIN_LCD_RST, 1)
-
-#define OLED_DC_Clr() gpio_put(PIN_LCD_DC, 0)
-#define OLED_DC_Set() gpio_put(PIN_LCD_DC, 1)
-
-
-#if     HAS_BLK_CNTL
-#define OLED_BLK_Clr() gpio_put(PIN_LCD_BLK, 0)
-#define OLED_BLK_Set() gpio_put(PIN_LCD_BLK, 1)
-#else
-#define OLED_BLK_Clr()
-#define OLED_BLK_Set()
-#endif
-
-#define OLED_CMD  0 //写命令
-#define OLED_DATA 1 //写数据
-
 extern  u16 BACK_COLOR;   //背景色
 
-void LCD_Writ_Bus(u8 dat);
-void LCD_WR_DATA8(u8 dat);
-void LCD_WR_DATA(u16 dat);
-void LCD_WR_REG(u8 dat);
-void LCD_Address_Set(u16 x1,u16 y1,u16 x2,u16 y2);
+void LCD_Config(pico_st7735_80x160_config_t* config);
 void LCD_Init(void);
 void LCD_Clear(u16 Color);
 void LCD_SetRotation(u8 rot);
@@ -96,7 +86,6 @@ void LCD_DrawRectangle(u16 x1, u16 y1, u16 x2, u16 y2,u16 color);
 void Draw_Circle(u16 x0,u16 y0,u8 r,u16 color);
 void LCD_ShowChar(u16 x,u16 y,u8 num,u8 mode,u16 color);
 void LCD_ShowString(u16 x,u16 y,const u8 *p,u16 color);
-u32 mypow(u8 m,u8 n);
 void LCD_ShowNum(u16 x,u16 y,u16 num,u8 len,u16 color);
 void LCD_ShowNum1(u16 x,u16 y,float num,u8 len,u16 color);
 void LCD_ShowPicture(u16 x1, u16 y1, u16 x2, u16 y2, u8* image);
@@ -137,6 +126,4 @@ void LCD_ShowPicture(u16 x1, u16 y1, u16 x2, u16 y2, u8* image);
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

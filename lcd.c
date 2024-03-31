@@ -1,8 +1,80 @@
 #include "lcd.h"
+
+#include "pico.h"
+#include "pico/stdlib.h"
+#include "lcd_private.h"
 #include "oledfont.h"
 
-static u8 _rotation = 2;  //设置横屏或者竖屏显示 0或1为竖屏 2或3为横屏
+// Macro definitions
+#define HAS_BLK_CNTL    0
+
+#define LCD_WIDTH 160
+#define LCD_HEIGHT 80
+
+#define OLED_CS_Clr() gpio_put(_config.pin_cs, 0)
+#define OLED_CS_Set() gpio_put(_config.pin_cs, 1)
+
+#define OLED_RST_Clr() gpio_put(_config.pin_rst, 0)
+#define OLED_RST_Set() gpio_put(_config.pin_rst, 1)
+
+#define OLED_DC_Clr() gpio_put(_config.pin_dc, 0)
+#define OLED_DC_Set() gpio_put(_config.pin_dc, 1)
+
+
+#if     HAS_BLK_CNTL
+#define OLED_BLK_Clr() gpio_put(PIN_LCD_BLK, 0)
+#define OLED_BLK_Set() gpio_put(PIN_LCD_BLK, 1)
+#else
+#define OLED_BLK_Clr()
+#define OLED_BLK_Set()
+#endif
+
+#define OLED_CMD  0 //写命令
+#define OLED_DATA 1 //写数据
+
+/******************************************************************************
+   Pin selection
+******************************************************************************/
+static pico_st7735_80x160_config_t _config = {
+    SPI_CLK_FREQ_DEFAULT,
+#if SPI_INST_DEFAULT
+    spi1,
+    PIN_LCD_SPI1_CS_DEFAULT,
+    PIN_LCD_SPI1_SCK_DEFAULT,
+    PIN_LCD_SPI1_MOSI_DEFAULT,
+#else
+    spi0,
+    PIN_LCD_SPI0_CS_DEFAULT,
+    PIN_LCD_SPI0_SCK_DEFAULT,
+    PIN_LCD_SPI0_MOSI_DEFAULT,
+#endif
+    PIN_LCD_DC_DEFAULT,
+    PIN_LCD_RST_DEFAULT,
+    PIN_LCD_BLK_DEFAULT,
+    INVERSION_DEFAULT,
+    RGB_ORDER_DEFAULT,
+    ROTATION_DEFAULT,
+    H_OFS_DEFAULT,
+    V_OFS_DEFAULT,
+    X_MIRROR_DEFAULT
+};
+
+
+static u8 _rotation = 0;  //设置横屏或者竖屏显示 0或1为竖屏 2或3为横屏
 u16 BACK_COLOR;   //背景色
+
+/******************************************************************************
+      函数说明：显示数字
+      入口数据：m底数，n指数
+      返回值：  无
+******************************************************************************/
+static u32 mypow(u8 m,u8 n)
+{
+    u32 result=1;
+    while(n--)result*=m;
+    return result;
+}
+
 
 /******************************************************************************
       函数说明：LCD串行数据写入函数
@@ -14,7 +86,7 @@ void LCD_Writ_Bus(u8 dat)
     OLED_CS_Clr();
 
     uint8_t *buff = (uint8_t *) &dat;
-    spi_write_blocking(SPI_INST, buff, 1);
+    spi_write_blocking(_config.spi_inst, buff, 1);
 
     OLED_CS_Set();
 }
@@ -68,41 +140,41 @@ void LCD_Address_Set(u16 x1,u16 y1,u16 x2,u16 y2)
     if(_rotation==0)
     {
         LCD_WR_REG(0x2a);//列地址设置
-        LCD_WR_DATA(x1+26);
-        LCD_WR_DATA(x2+26);
+        LCD_WR_DATA(x1+_config.v_ofs);
+        LCD_WR_DATA(x2+_config.v_ofs);
         LCD_WR_REG(0x2b);//行地址设置
-        LCD_WR_DATA(y1+1);
-        LCD_WR_DATA(y2+1);
+        LCD_WR_DATA(y1+_config.h_ofs);
+        LCD_WR_DATA(y2+_config.h_ofs);
         LCD_WR_REG(0x2c);//储存器写
     }
     else if(_rotation==1)
     {
         LCD_WR_REG(0x2a);//列地址设置
-        LCD_WR_DATA(x1+26);
-        LCD_WR_DATA(x2+26);
+        LCD_WR_DATA(x1+_config.v_ofs);
+        LCD_WR_DATA(x2+_config.v_ofs);
         LCD_WR_REG(0x2b);//行地址设置
-        LCD_WR_DATA(y1+1);
-        LCD_WR_DATA(y2+1);
+        LCD_WR_DATA(y1+_config.h_ofs);
+        LCD_WR_DATA(y2+_config.h_ofs);
         LCD_WR_REG(0x2c);//储存器写
     }
     else if(_rotation==2)
     {
         LCD_WR_REG(0x2a);//列地址设置
-        LCD_WR_DATA(x1+1);
-        LCD_WR_DATA(x2+1);
+        LCD_WR_DATA(x1+_config.h_ofs);
+        LCD_WR_DATA(x2+_config.h_ofs);
         LCD_WR_REG(0x2b);//行地址设置
-        LCD_WR_DATA(y1+26);
-        LCD_WR_DATA(y2+26);
+        LCD_WR_DATA(y1+_config.v_ofs);
+        LCD_WR_DATA(y2+_config.v_ofs);
         LCD_WR_REG(0x2c);//储存器写
     }
     else
     {
         LCD_WR_REG(0x2a);//列地址设置
-        LCD_WR_DATA(x1+1);
-        LCD_WR_DATA(x2+1);
+        LCD_WR_DATA(x1+_config.h_ofs);
+        LCD_WR_DATA(x2+_config.h_ofs);
         LCD_WR_REG(0x2b);//行地址设置
-        LCD_WR_DATA(y1+26);
-        LCD_WR_DATA(y2+26);
+        LCD_WR_DATA(y1+_config.v_ofs);
+        LCD_WR_DATA(y2+_config.v_ofs);
         LCD_WR_REG(0x2c);//储存器写
     }
 }
@@ -115,19 +187,20 @@ void LCD_Address_Set(u16 x1,u16 y1,u16 x2,u16 y2)
 */
 void spi_config(void)
 {
-    gpio_init(PIN_LCD_SCK);
-    gpio_set_function(PIN_LCD_SCK, GPIO_FUNC_SPI);
+    gpio_init(_config.pin_sck);
+    gpio_set_function(_config.pin_sck, GPIO_FUNC_SPI);
 
-    gpio_init(PIN_LCD_MOSI);
-    gpio_set_function(PIN_LCD_MOSI, GPIO_FUNC_SPI);
+    gpio_init(_config.pin_mosi);
+    gpio_set_function(_config.pin_mosi, GPIO_FUNC_SPI);
 
-    gpio_init(PIN_LCD_CS);
-    gpio_set_dir(PIN_LCD_CS, GPIO_OUT);
+    gpio_init(_config.pin_cs);
+    gpio_set_dir(_config.pin_cs, GPIO_OUT);
 
-    spi_init(SPI_INST, SPI_CLK_FREQ);
+    spi_init(_config.spi_inst, _config.clk_freq);
 
     /* SPI parameter config */
-    spi_set_format(SPI_INST,
+    spi_set_format(
+        _config.spi_inst,
         8, /* data_bits */
         SPI_CPOL_0, /* cpol */
         SPI_CPHA_0, /* cpha */
@@ -138,21 +211,31 @@ void spi_config(void)
 }
 
 /******************************************************************************
+* Set configuration
+*
+* @param[in] config the pointer of pico_st7735_80x160_config_t to configure with
+******************************************************************************/
+void LCD_Config(pico_st7735_80x160_config_t* config)
+{
+    _config = *config;
+}
+
+/******************************************************************************
       函数说明：LCD初始化函数
       入口数据：无
       返回值：  无
 ******************************************************************************/
 void LCD_Init(void)
 {
-    gpio_init(PIN_LCD_DC);
-    gpio_set_dir(PIN_LCD_DC, GPIO_OUT);
+    gpio_init(_config.pin_dc);
+    gpio_set_dir(_config.pin_dc, GPIO_OUT);
 
-    gpio_init(PIN_LCD_RST);
-    gpio_set_dir(PIN_LCD_RST, GPIO_OUT);
+    gpio_init(_config.pin_rst);
+    gpio_set_dir(_config.pin_rst, GPIO_OUT);
 
 #if HAS_BLK_CNTL
-    gpio_init(PIN_LCD_BLK);
-    gpio_set_dir(PIN_LCD_BLK, GPIO_OUT);
+    gpio_init(_config.pin_blk);
+    gpio_set_dir(_config.pin_blk, GPIO_OUT);
 #endif
 
     spi_config();
@@ -166,7 +249,10 @@ void LCD_Init(void)
     LCD_WR_REG(0x11);   // turn off sleep mode
     sleep_ms(100);
 
-    LCD_WR_REG(0x21);   // display inversion mode
+    if (_config.inversion)
+    {
+        LCD_WR_REG(0x21);   // display inversion mode
+    }
 
     LCD_WR_REG(0xB1);   // Set the frame frequency of the full colors normal mode
                         // Frame rate=fosc/((RTNA x 2 + 40) x (LINE + FPA + BPA +2))
@@ -259,10 +345,10 @@ void LCD_Init(void)
     /*
     // Memory data access control (MADCTL)
     LCD_WR_REG(0x36);
-    if(_rotation==0)LCD_WR_DATA8(0x00 | (RGB_ORDER<<3));
-    else if(_rotation==1)LCD_WR_DATA8(0xC0 | (RGB_ORDER<<3));
-    else if(_rotation==2)LCD_WR_DATA8(0x70 | (RGB_ORDER<<3));
-    else LCD_WR_DATA8(0xA0 | (RGB_ORDER<<3));
+    if(_rotation==0)LCD_WR_DATA8(0x00 | (_config.rgb_order<<3));
+    else if(_rotation==1)LCD_WR_DATA8(0xC0 | (_config.rgb_order<<3));
+    else if(_rotation==2)LCD_WR_DATA8(0x70 | (_config.rgb_order<<3));
+    else LCD_WR_DATA8(0xA0 | (_config.rgb_order<<3));
     */
 
     LCD_WR_REG(0x29);   // Display On
@@ -288,13 +374,23 @@ void LCD_Clear(u16 Color)
 
 void LCD_SetRotation(u8 rot)
 {
-    _rotation = rot & 0x3;
+    _rotation = rot ^ _config.rotation;
     // Memory data access control (MADCTL)
+    // D7: MY   Row Address Order
+    // D6: M    Column Address Order
+    // D5: MV   Row/Column Exchange
+    // D4: ML   Vertical Refresh Order
+    // D3: RGB  RGB-BGR Order
+    // D2: MH   Horizontal Refresh Order
     LCD_WR_REG(0x36);
-    if(_rotation==0)LCD_WR_DATA8(0x00 | (RGB_ORDER<<3));
-    else if(_rotation==1)LCD_WR_DATA8(0xC0 | (RGB_ORDER<<3));
-    else if(_rotation==2)LCD_WR_DATA8(0x70 | (RGB_ORDER<<3));
-    else LCD_WR_DATA8(0xA0 | (RGB_ORDER<<3));
+    if(_rotation==0)
+        LCD_WR_DATA8((0x00 ^ (_config.x_mirror<<7)) | (_config.rgb_order<<3));
+    else if(_rotation==1)
+        LCD_WR_DATA8((0xC0 ^ (_config.x_mirror<<7)) | (_config.rgb_order<<3));
+    else if(_rotation==2)
+        LCD_WR_DATA8((0x70 ^ (_config.x_mirror<<6)) | (_config.rgb_order<<3));
+    else
+        LCD_WR_DATA8((0xA0 ^ (_config.x_mirror<<6)) | (_config.rgb_order<<3));
 }
 
 u16 LCD_W()
@@ -539,19 +635,6 @@ void LCD_ShowString(u16 x,u16 y,const u8 *p,u16 color)
         x+=8;
         p++;
     }
-}
-
-
-/******************************************************************************
-      函数说明：显示数字
-      入口数据：m底数，n指数
-      返回值：  无
-******************************************************************************/
-u32 mypow(u8 m,u8 n)
-{
-    u32 result=1;
-    while(n--)result*=m;
-    return result;
 }
 
 

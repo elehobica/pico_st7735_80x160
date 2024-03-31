@@ -6,6 +6,10 @@
 #include "hardware/pwm.h"
 #include "lcd_extra.h"
 
+// 0 ~ 2: Raspberry Pi Pico
+// 3:     Waveshare RP2040-LCD-0.96
+#define LCD_CFG_CASE 0
+
 static void error_blink(uint led, int count)
 {
     while (true) {
@@ -142,7 +146,7 @@ void testdrawcircles(uint8_t radius, uint16_t color1, uint16_t color2)
 int main()
 {
     const uint32_t TimeStay = 1000;
-    u8 rotation = 2;
+    u8 rotation = 0;
 
     stdio_init_all();
 
@@ -157,12 +161,83 @@ int main()
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
 
+#if LCD_CFG_CASE == 0
+    pico_st7735_80x160_config_t lcd_cfg = {
+        SPI_CLK_FREQ_DEFAULT,
+        spi1,
+        PIN_LCD_SPI1_CS_DEFAULT,
+        PIN_LCD_SPI1_SCK_DEFAULT,
+        PIN_LCD_SPI1_MOSI_DEFAULT,
+        PIN_LCD_DC_DEFAULT,
+        PIN_LCD_RST_DEFAULT,
+        PIN_LCD_BLK_DEFAULT,
+        INVERSION_DEFAULT,  // 0: non-color-inversion, 1: color-inversion
+        RGB_ORDER_DEFAULT,  // 0: RGB, 1: BGR
+        ROTATION_DEFAULT,
+        H_OFS_DEFAULT,
+        V_OFS_DEFAULT,
+        X_MIRROR_DEFAULT
+    };
+#elif LCD_CFG_CASE == 1
+    pico_st7735_80x160_config_t lcd_cfg = {
+        SPI_CLK_FREQ_DEFAULT,
+        spi1,
+        PIN_LCD_SPI1_CS_DEFAULT,
+        PIN_LCD_SPI1_SCK_DEFAULT,
+        PIN_LCD_SPI1_MOSI_DEFAULT,
+        PIN_LCD_DC_DEFAULT,
+        PIN_LCD_RST_DEFAULT,
+        PIN_LCD_BLK_DEFAULT,
+        0,  //INVERSION_DEFAULT,  // 0: non-color-inversion, 1: color-inversion
+        RGB_ORDER_DEFAULT,  // 0: RGB, 1: BGR
+        ROTATION_DEFAULT,
+        0,  //H_OFS_DEFAULT,
+        24,  //V_OFS_DEFAULT
+        X_MIRROR_DEFAULT
+    };
+#elif LCD_CFG_CASE == 2
+    pico_st7735_80x160_config_t lcd_cfg = {
+        SPI_CLK_FREQ_DEFAULT,
+        spi1,
+        PIN_LCD_SPI1_CS_DEFAULT,
+        PIN_LCD_SPI1_SCK_DEFAULT,
+        PIN_LCD_SPI1_MOSI_DEFAULT,
+        PIN_LCD_DC_DEFAULT,
+        PIN_LCD_RST_DEFAULT,
+        PIN_LCD_BLK_DEFAULT,
+        INVERSION_DEFAULT,  // 0: non-color-inversion, 1: color-inversion
+        0,  //RGB_ORDER_DEFAULT,  // 0: RGB, 1: BGR
+        ROTATION_DEFAULT,
+        H_OFS_DEFAULT,
+        V_OFS_DEFAULT,
+        1  //X_MIRROR_DEFAULT
+    };
+#elif LCD_CFG_CASE == 3
+    pico_st7735_80x160_config_t lcd_cfg = {
+        SPI_CLK_FREQ_DEFAULT,
+        spi1,
+        PIN_LCD_SPI1_CS_WAVESHARE,
+        PIN_LCD_SPI1_SCK_WAVESHARE,
+        PIN_LCD_SPI1_MOSI_WAVESHARE,
+        PIN_LCD_DC_WAVESHARE,
+        PIN_LCD_RST_WAVESHARE,
+        PIN_LCD_BLK_WAVESHARE,
+        INVERSION_DEFAULT,  // 0: non-color-inversion, 1: color-inversion
+        RGB_ORDER_DEFAULT,  // 0: RGB, 1: BGR
+        ROTATION_DEFAULT,
+        H_OFS_DEFAULT,
+        V_OFS_DEFAULT,
+        X_MIRROR_DEFAULT
+    };
+#endif
+
     // BackLight PWM (125MHz / 65536 / 4 = 476.84 Hz)
+    const uint32_t PIN_LCD_BLK = lcd_cfg.pin_blk;
     gpio_set_function(PIN_LCD_BLK, GPIO_FUNC_PWM);
     uint slice_num = pwm_gpio_to_slice_num(PICO_DEFAULT_LED_PIN);
-    pwm_config config = pwm_get_default_config();
-    pwm_config_set_clkdiv(&config, 4.f);
-    pwm_init(slice_num, &config, true);
+    pwm_config pwm_cfg = pwm_get_default_config();
+    pwm_config_set_clkdiv(&pwm_cfg, 4.f);
+    pwm_init(slice_num, &pwm_cfg, true);
     int bl_val = 196;
     // Square bl_val to make brightness appear more linear
     pwm_set_gpio_level(PIN_LCD_BLK, bl_val * bl_val);
@@ -182,6 +257,7 @@ int main()
     printf("=: decrease back light\n");
     printf("r: repeat demo\n");
 
+    LCD_Config(&lcd_cfg);
     LCD_Init();
 
     while (1) {
