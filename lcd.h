@@ -38,7 +38,8 @@ typedef long  i32;
 #define PIN_LCD_RST_WAVESHARE       12  // any GPIO
 #define PIN_LCD_BLK_WAVESHARE       25  // any GPIO
 
-#define INVERSION_DEFAULT           1   // 0: non-color-inversion, 1: color-inversion
+#define PWM_BLK_DEFAULT             true
+#define INVERSION_DEFAULT           true  // false: non-color-inversion, true: color-inversion
 #define RGB_ORDER_DEFAULT           1   // 0: RGB, 1: BGR
 #define ROTATION_DEFAULT            2
 
@@ -56,6 +57,7 @@ typedef struct _pico_st7735_80x160_config_t {
     uint       pin_dc;
     uint       pin_rst;
     uint       pin_blk;
+    bool       pwm_blk;
     bool       inversion;
     u8         rgb_order;
     u8         rotation;
@@ -89,6 +91,10 @@ void LCD_ShowString(u16 x,u16 y,const u8 *p,u16 color);
 void LCD_ShowNum(u16 x,u16 y,u16 num,u8 len,u16 color);
 void LCD_ShowNum1(u16 x,u16 y,float num,u8 len,u16 color);
 void LCD_ShowPicture(u16 x1, u16 y1, u16 x2, u16 y2, u8* image);
+void OLED_BLK_Clr();
+void OLED_BLK_Set();
+void OLED_BLK_Set_PWM(u8 level);
+u8 OLED_BLK_Get_PWM(void);
 
 
 //画笔颜色

@@ -20,7 +20,6 @@ pico_enable_stdio_uart(${PROJECT_NAME} 1)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     hardware_uart
-    hardware_pwm
     pico_stdlib
     pico_st7735_80x160
 )

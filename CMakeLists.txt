@@ -9,6 +9,7 @@ if (NOT TARGET pico_st7735_80x160)
     target_link_libraries(pico_st7735_80x160 INTERFACE
         hardware_clocks
         hardware_spi
+        hardware_pwm
         pico_stdlib
     )
     target_include_directories(pico_st7735_80x160 INTERFACE

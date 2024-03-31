@@ -3,7 +3,6 @@
 
 #include "pico/stdlib.h"
 #include "hardware/uart.h"
-#include "hardware/pwm.h"
 #include "lcd_extra.h"
 
 // 0 ~ 2: Raspberry Pi Pico
@@ -171,6 +170,7 @@ int main()
         PIN_LCD_DC_DEFAULT,
         PIN_LCD_RST_DEFAULT,
         PIN_LCD_BLK_DEFAULT,
+        PWM_BLK_DEFAULT,
         INVERSION_DEFAULT,  // 0: non-color-inversion, 1: color-inversion
         RGB_ORDER_DEFAULT,  // 0: RGB, 1: BGR
         ROTATION_DEFAULT,
@@ -188,6 +188,7 @@ int main()
         PIN_LCD_DC_DEFAULT,
         PIN_LCD_RST_DEFAULT,
         PIN_LCD_BLK_DEFAULT,
+        PWM_BLK_DEFAULT,
         0,  //INVERSION_DEFAULT,  // 0: non-color-inversion, 1: color-inversion
         RGB_ORDER_DEFAULT,  // 0: RGB, 1: BGR
         ROTATION_DEFAULT,
@@ -205,6 +206,7 @@ int main()
         PIN_LCD_DC_DEFAULT,
         PIN_LCD_RST_DEFAULT,
         PIN_LCD_BLK_DEFAULT,
+        PWM_BLK_DEFAULT,
         INVERSION_DEFAULT,  // 0: non-color-inversion, 1: color-inversion
         0,  //RGB_ORDER_DEFAULT,  // 0: RGB, 1: BGR
         ROTATION_DEFAULT,
@@ -222,6 +224,7 @@ int main()
         PIN_LCD_DC_WAVESHARE,
         PIN_LCD_RST_WAVESHARE,
         PIN_LCD_BLK_WAVESHARE,
+        PWM_BLK_DEFAULT,
         INVERSION_DEFAULT,  // 0: non-color-inversion, 1: color-inversion
         RGB_ORDER_DEFAULT,  // 0: RGB, 1: BGR
         ROTATION_DEFAULT,
@@ -230,17 +233,6 @@ int main()
         X_MIRROR_DEFAULT
     };
 #endif
-
-    // BackLight PWM (125MHz / 65536 / 4 = 476.84 Hz)
-    const uint32_t PIN_LCD_BLK = lcd_cfg.pin_blk;
-    gpio_set_function(PIN_LCD_BLK, GPIO_FUNC_PWM);
-    uint slice_num = pwm_gpio_to_slice_num(PICO_DEFAULT_LED_PIN);
-    pwm_config pwm_cfg = pwm_get_default_config();
-    pwm_config_set_clkdiv(&pwm_cfg, 4.f);
-    pwm_init(slice_num, &pwm_cfg, true);
-    int bl_val = 196;
-    // Square bl_val to make brightness appear more linear
-    pwm_set_gpio_level(PIN_LCD_BLK, bl_val * bl_val);
 
     // Discard any input from Serial
     while (uart_is_readable(uart0)) {
@@ -259,6 +251,7 @@ int main()
 
     LCD_Config(&lcd_cfg);
     LCD_Init();
+    u8 bl_val = OLED_BLK_Get_PWM();
 
     while (1) {
         LCD_SetRotation(rotation);
@@ -295,12 +288,12 @@ int main()
             switch (c) {
                 case '-':
                     if (bl_val) bl_val--;
-                    pwm_set_gpio_level(PIN_LCD_BLK, bl_val * bl_val);
+                    OLED_BLK_Set_PWM(bl_val);
                     break;
                 case '=':
                 case '+':
                     if (bl_val < 255) bl_val++;
-                    pwm_set_gpio_level(PIN_LCD_BLK, bl_val * bl_val);
+                    OLED_BLK_Set_PWM(bl_val);
                     break;
                 default:
                     break;

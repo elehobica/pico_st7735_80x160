@@ -1,13 +1,12 @@
 #include "lcd.h"
 
 #include "pico.h"
+#include "hardware/pwm.h"
 #include "pico/stdlib.h"
 #include "lcd_private.h"
 #include "oledfont.h"
 
 // Macro definitions
-#define HAS_BLK_CNTL    0
-
 #define LCD_WIDTH 160
 #define LCD_HEIGHT 80
 
@@ -20,14 +19,7 @@
 #define OLED_DC_Clr() gpio_put(_config.pin_dc, 0)
 #define OLED_DC_Set() gpio_put(_config.pin_dc, 1)
 
-
-#if     HAS_BLK_CNTL
-#define OLED_BLK_Clr() gpio_put(PIN_LCD_BLK, 0)
-#define OLED_BLK_Set() gpio_put(PIN_LCD_BLK, 1)
-#else
-#define OLED_BLK_Clr()
-#define OLED_BLK_Set()
-#endif
+#define DEFAULT_PWM_BLK_LEVEL 196
 
 #define OLED_CMD  0 //写命令
 #define OLED_DATA 1 //写数据
@@ -51,6 +43,7 @@ static pico_st7735_80x160_config_t _config = {
     PIN_LCD_DC_DEFAULT,
     PIN_LCD_RST_DEFAULT,
     PIN_LCD_BLK_DEFAULT,
+    PWM_BLK_DEFAULT,
     INVERSION_DEFAULT,
     RGB_ORDER_DEFAULT,
     ROTATION_DEFAULT,
@@ -59,7 +52,7 @@ static pico_st7735_80x160_config_t _config = {
     X_MIRROR_DEFAULT
 };
 
-
+static u8 _pwm_blk_level = DEFAULT_PWM_BLK_LEVEL;
 static u8 _rotation = 0;  //设置横屏或者竖屏显示 0或1为竖屏 2或3为横屏
 u16 BACK_COLOR;   //背景色
 
@@ -73,6 +66,37 @@ static u32 mypow(u8 m,u8 n)
     u32 result=1;
     while(n--)result*=m;
     return result;
+}
+
+/*!
+    \brief      configure the SPI peripheral
+    \param[in]  none
+    \param[out] none
+    \retval     none
+*/
+static void spi_config(void)
+{
+    gpio_init(_config.pin_sck);
+    gpio_set_function(_config.pin_sck, GPIO_FUNC_SPI);
+
+    gpio_init(_config.pin_mosi);
+    gpio_set_function(_config.pin_mosi, GPIO_FUNC_SPI);
+
+    gpio_init(_config.pin_cs);
+    gpio_set_dir(_config.pin_cs, GPIO_OUT);
+
+    spi_init(_config.spi_inst, _config.clk_freq);
+
+    /* SPI parameter config */
+    spi_set_format(
+        _config.spi_inst,
+        8, /* data_bits */
+        SPI_CPOL_0, /* cpol */
+        SPI_CPHA_0, /* cpha */
+        SPI_MSB_FIRST /* order */
+    );
+
+    OLED_CS_Set();
 }
 
 
@@ -179,37 +203,6 @@ void LCD_Address_Set(u16 x1,u16 y1,u16 x2,u16 y2)
     }
 }
 
-/*!
-    \brief      configure the SPI peripheral
-    \param[in]  none
-    \param[out] none
-    \retval     none
-*/
-void spi_config(void)
-{
-    gpio_init(_config.pin_sck);
-    gpio_set_function(_config.pin_sck, GPIO_FUNC_SPI);
-
-    gpio_init(_config.pin_mosi);
-    gpio_set_function(_config.pin_mosi, GPIO_FUNC_SPI);
-
-    gpio_init(_config.pin_cs);
-    gpio_set_dir(_config.pin_cs, GPIO_OUT);
-
-    spi_init(_config.spi_inst, _config.clk_freq);
-
-    /* SPI parameter config */
-    spi_set_format(
-        _config.spi_inst,
-        8, /* data_bits */
-        SPI_CPOL_0, /* cpol */
-        SPI_CPHA_0, /* cpha */
-        SPI_MSB_FIRST /* order */
-    );
-
-    OLED_CS_Set();
-}
-
 /******************************************************************************
 * Set configuration
 *
@@ -233,10 +226,22 @@ void LCD_Init(void)
     gpio_init(_config.pin_rst);
     gpio_set_dir(_config.pin_rst, GPIO_OUT);
 
-#if HAS_BLK_CNTL
-    gpio_init(_config.pin_blk);
-    gpio_set_dir(_config.pin_blk, GPIO_OUT);
-#endif
+    if (_config.pwm_blk)
+    {
+        // BackLight PWM (125MHz / 65536 / 4 = 476.84 Hz)
+        gpio_set_function(_config.pin_blk, GPIO_FUNC_PWM);
+        uint slice_num = pwm_gpio_to_slice_num(_config.pin_blk);
+        pwm_config pwm_cfg = pwm_get_default_config();
+        pwm_config_set_clkdiv(&pwm_cfg, 4.f);
+        pwm_init(slice_num, &pwm_cfg, true);
+        // Square bl_val to make brightness appear more linear
+        pwm_set_gpio_level(_config.pin_blk, (uint16_t) _pwm_blk_level * _pwm_blk_level);
+    }
+    else
+    {
+        gpio_init(_config.pin_blk);
+        gpio_set_dir(_config.pin_blk, GPIO_OUT);
+    }
 
     spi_config();
 
@@ -707,4 +712,34 @@ void LCD_ShowPicture(u16 x1, u16 y1, u16 x2, u16 y2, u8 *image)
     {
         LCD_WR_DATA8(image[i]);
     }
+}
+
+void OLED_BLK_Clr()
+{
+    if (_config.pwm_blk)
+        pwm_set_gpio_level(_config.pin_blk, 0);
+    else
+        gpio_put(_config.pin_blk, 0);
+}
+
+void OLED_BLK_Set()
+{
+    if (_config.pwm_blk)
+        pwm_set_gpio_level(_config.pin_blk, (uint16_t) _pwm_blk_level * _pwm_blk_level);
+    else
+        gpio_put(_config.pin_blk, 1);
+}
+
+void OLED_BLK_Set_PWM(u8 level)
+{
+    if (_config.pwm_blk)
+    {
+        _pwm_blk_level = level;
+        pwm_set_gpio_level(_config.pin_blk, (uint16_t) _pwm_blk_level * _pwm_blk_level);
+    }
+}
+
+u8 OLED_BLK_Get_PWM(void)
+{
+    return _pwm_blk_level;
 }
