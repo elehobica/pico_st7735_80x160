@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-## [1.0.1] - 2023-03-31
+## [1.0.1] - 2024-03-31
 ### Added
 * Add LCD_Config()
 * Support BLK PWM control
@@ -14,5 +14,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 * LCD_SetRotation(0) makes relative 0 degree rotation against configuration (previous: absolute rotation of the module)
 
-## [1.0.0] - 2023-03-02
+## [1.0.0] - 2024-03-02
 * Initial release
