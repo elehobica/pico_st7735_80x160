@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Changed
+* OLED_BLK_Set_PWM(0) leads changing into GPIO mode to set false
 
 ## [1.0.1] - 2024-03-31
 ### Added

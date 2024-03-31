@@ -99,6 +99,21 @@ static void spi_config(void)
     OLED_CS_Set();
 }
 
+static void set_blk_pwm()
+{
+    // BackLight PWM (125MHz / 65536 / 4 = 476.84 Hz)
+    gpio_set_function(_config.pin_blk, GPIO_FUNC_PWM);
+    uint slice_num = pwm_gpio_to_slice_num(_config.pin_blk);
+    pwm_config pwm_cfg = pwm_get_default_config();
+    pwm_config_set_clkdiv(&pwm_cfg, 4.f);
+    pwm_init(slice_num, &pwm_cfg, true);
+}
+
+static void set_blk_gpio()
+{
+    gpio_init(_config.pin_blk);
+    gpio_set_dir(_config.pin_blk, GPIO_OUT);
+}
 
 /******************************************************************************
       函数说明：LCD串行数据写入函数
@@ -228,19 +243,11 @@ void LCD_Init(void)
 
     if (_config.pwm_blk)
     {
-        // BackLight PWM (125MHz / 65536 / 4 = 476.84 Hz)
-        gpio_set_function(_config.pin_blk, GPIO_FUNC_PWM);
-        uint slice_num = pwm_gpio_to_slice_num(_config.pin_blk);
-        pwm_config pwm_cfg = pwm_get_default_config();
-        pwm_config_set_clkdiv(&pwm_cfg, 4.f);
-        pwm_init(slice_num, &pwm_cfg, true);
-        // Square bl_val to make brightness appear more linear
-        pwm_set_gpio_level(_config.pin_blk, (uint16_t) _pwm_blk_level * _pwm_blk_level);
+        set_blk_pwm();
     }
     else
     {
-        gpio_init(_config.pin_blk);
-        gpio_set_dir(_config.pin_blk, GPIO_OUT);
+        set_blk_gpio();
     }
 
     spi_config();
@@ -725,6 +732,7 @@ void OLED_BLK_Clr()
 void OLED_BLK_Set()
 {
     if (_config.pwm_blk)
+        // Square bl_val to make brightness appear more linear
         pwm_set_gpio_level(_config.pin_blk, (uint16_t) _pwm_blk_level * _pwm_blk_level);
     else
         gpio_put(_config.pin_blk, 1);
@@ -734,8 +742,20 @@ void OLED_BLK_Set_PWM(u8 level)
 {
     if (_config.pwm_blk)
     {
-        _pwm_blk_level = level;
-        pwm_set_gpio_level(_config.pin_blk, (uint16_t) _pwm_blk_level * _pwm_blk_level);
+        if (level == 0) {
+            if (_pwm_blk_level != 0) {
+                set_blk_gpio();
+                gpio_put(_config.pin_blk, false);
+            }
+            _pwm_blk_level = level;
+        } else {
+            if (_pwm_blk_level == 0) {
+                set_blk_pwm();
+            }
+            _pwm_blk_level = level;
+            // Square bl_val to make brightness appear more linear
+            pwm_set_gpio_level(_config.pin_blk, (uint16_t) _pwm_blk_level * _pwm_blk_level);
+        }
     }
 }
 
