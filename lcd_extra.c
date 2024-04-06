@@ -1,7 +1,6 @@
 #include "lcd_extra.h"
 
 #include "lcd_private.h"
-#include "iconfont.h"
 
 extern const u8 asc2_1608[1520];
 extern unsigned char *image; // 80*80*2
@@ -14,19 +13,17 @@ u16 LCD_GetBackground(u16 x, u16 y)
 
 // Show 16x16 ICON
 // mode: 0: non-overlay, 1: overlay
-void LCD_ShowIcon(u16 x,u16 y,u8 index,u8 mode,u16 color)
+void LCD_ShowIcon(u16 x,u16 y,u8 *index,u8 mode,u16 color)
 {
     u8 pos,t;
     u8 *temp,size1;
     u8 size = 16;
-    if (index == ICON16x16_UNDEF) { return; }
-    temp=Icon16;
+    if (index == NULL) { return; }
     LCD_Address_Set(x,y,x+size-1,y+size-1); //设置一个汉字的区域
     size1=size*size/8;//一个汉字所占的字节
-    temp+=index*size1;//写入的起始位置
     for (pos=0;pos<size1;pos++) {
         for (t=0;t<8;t++) {
-            if ((*temp&(1<<t))!=0) {//从数据的低位开始读
+            if ((*index&(1<<t))!=0) {//从数据的低位开始读
                 LCD_WR_DATA(color);//点亮
             } else if (!mode) {
                 LCD_WR_DATA(BACK_COLOR);//不点亮
@@ -34,7 +31,7 @@ void LCD_ShowIcon(u16 x,u16 y,u8 index,u8 mode,u16 color)
                 LCD_WR_DATA(LCD_GetBackground(x+(pos%2)*8+t, y+pos/2));
             }
         }
-        temp++;
+        index++;
     }
 }
 
