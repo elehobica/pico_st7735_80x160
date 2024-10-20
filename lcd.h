@@ -66,12 +66,12 @@ typedef struct _pico_st7735_80x160_config_t {
     u8         x_mirror;
 } pico_st7735_80x160_config_t;
 
-//-----------------OLED端口定义----------------
+//-----------------OLED port definitions----------------
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern  u16 BACK_COLOR;   //背景色
+extern  u16 BACK_COLOR;   //background color
 
 void LCD_Config(pico_st7735_80x160_config_t* config);
 void LCD_Init(void);
@@ -97,7 +97,7 @@ void OLED_BLK_Set_PWM(u8 level);
 u8 OLED_BLK_Get_PWM(void);
 
 
-//画笔颜色
+//colors
 #define WHITE            0xFFFF
 #define BLACK            0x0000
 #define BLUE             0x001F
@@ -109,21 +109,21 @@ u8 OLED_BLK_Get_PWM(void);
 #define GREEN            0x07E0
 #define CYAN             0x7FFF
 #define YELLOW           0xFFE0
-#define BROWN            0XBC40 //棕色
-#define BRRED            0XFC07 //棕红色
-#define GRAY             0X8430 //灰色
-//GUI颜色
+#define BROWN            0XBC40
+#define BRRED            0XFC07
+#define GRAY             0X8430
+//GUI color
 
-#define DARKBLUE         0X01CF //深蓝色
-#define LIGHTBLUE        0X7D7C //浅蓝色
-#define GRAYBLUE         0X5458 //灰蓝色
-//以上三色为PANEL的颜色
+#define DARKBLUE         0X01CF
+#define LIGHTBLUE        0X7D7C 
+#define GRAYBLUE         0X5458
+//The above three colors are the colors of PANEL
 
-#define LIGHTGREEN       0X841F //浅绿色
-#define LGRAY            0XC618 //浅灰色(PANNEL),窗体背景色
+#define LIGHTGREEN       0X841F
+#define LGRAY            0XC618
 
-#define LGRAYBLUE        0XA651 //浅灰蓝色(中间层颜色)
-#define LBBLUE           0X2B12 //浅棕蓝色(选择条目的反色)
+#define LGRAYBLUE        0XA651
+#define LBBLUE           0X2B12
 
 #define DARKGRAY         0x4208
 #define DARKGREEN        0x03E0

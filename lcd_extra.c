@@ -19,14 +19,14 @@ void LCD_ShowIcon(u16 x,u16 y,u8 *index,u8 mode,u16 color)
     u8 *temp,size1;
     u8 size = 16;
     if (index == NULL) { return; }
-    LCD_Address_Set(x,y,x+size-1,y+size-1); //设置一个汉字的区域
-    size1=size*size/8;//一个汉字所占的字节
+    LCD_Address_Set(x,y,x+size-1,y+size-1); //Set a chinese character area
+    size1=size*size/8;//The bytes occupied by a Chinese character
     for (pos=0;pos<size1;pos++) {
         for (t=0;t<8;t++) {
-            if ((*index&(1<<t))!=0) {//从数据的低位开始读
-                LCD_WR_DATA(color);//点亮
+            if ((*index&(1<<t))!=0) {//Start reading from the low bit of data
+                LCD_WR_DATA(color);//light up
             } else if (!mode) {
-                LCD_WR_DATA(BACK_COLOR);//不点亮
+                LCD_WR_DATA(BACK_COLOR);//Not lit
             } else {
                 LCD_WR_DATA(LCD_GetBackground(x+(pos%2)*8+t, y+pos/2));
             }
@@ -190,7 +190,7 @@ void LCD_FillBackground(u16 xsta,u16 ysta,u16 xend,u16 yend,u8 mode,u16 color)
         return;
     }
     u16 x,y;
-    LCD_Address_Set(xsta,ysta,xend,yend);      //设置光标位置
+    LCD_Address_Set(xsta,ysta,xend,yend);      //Set cursor position
     for (y=ysta;y<=yend;y++) {
         for (x=xsta;x<=xend;x++) {
             LCD_WR_DATA(LCD_GetBackground(x, y));
