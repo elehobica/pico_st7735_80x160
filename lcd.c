@@ -21,8 +21,8 @@
 
 #define DEFAULT_PWM_BLK_LEVEL 196
 
-#define OLED_CMD  0 //写命令
-#define OLED_DATA 1 //写数据
+#define OLED_CMD  0 //write command
+#define OLED_DATA 1 //write data
 
 /******************************************************************************
    Pin selection
@@ -53,13 +53,13 @@ static pico_st7735_80x160_config_t _config = {
 };
 
 static u8 _pwm_blk_level = DEFAULT_PWM_BLK_LEVEL;
-static u8 _rotation = 0;  //设置横屏或者竖屏显示 0或1为竖屏 2或3为横屏
-u16 BACK_COLOR;   //背景色
+static u8 _rotation = 0;  //Set horizontal or vertical screen display. 0 or 1 is vertical screen, 2 or 3 is horizontal screen.
+u16 BACK_COLOR;   //background color
 
 /******************************************************************************
-      函数说明：显示数字
-      入口数据：m底数，n指数
-      返回值：  无
+    Function description: display numbers
+      Entry data: m base, n index
+      Return value: None
 ******************************************************************************/
 static u32 mypow(u8 m,u8 n)
 {
@@ -116,9 +116,9 @@ static void set_blk_gpio()
 }
 
 /******************************************************************************
-      函数说明：LCD串行数据写入函数
-      入口数据：dat  要写入的串行数据
-      返回值：  无
+    Function description: LCD serial data writing function
+      Entry data: dat serial data to be written
+      Return value: None
 ******************************************************************************/
 void LCD_Writ_Bus(u8 dat)
 {
@@ -132,47 +132,47 @@ void LCD_Writ_Bus(u8 dat)
 
 
 /******************************************************************************
-      函数说明：LCD写入数据
-      入口数据：dat 写入的数据
-      返回值：  无
+    Function description: LCD writes data
+      Entry data: data written by dat
+      Return value: None
 ******************************************************************************/
 void LCD_WR_DATA8(u8 dat)
 {
-    OLED_DC_Set();//写数据
+    OLED_DC_Set();//write data
     LCD_Writ_Bus(dat);
 }
 
 
 /******************************************************************************
-      函数说明：LCD写入数据
-      入口数据：dat 写入的数据
-      返回值：  无
+    Function description: LCD writes data
+      Entry data: data written by dat
+      Return value: None
 ******************************************************************************/
 void LCD_WR_DATA(u16 dat)
 {
-    OLED_DC_Set();//写数据
+    OLED_DC_Set();//write data
     LCD_Writ_Bus(dat>>8);
     LCD_Writ_Bus(dat);
 }
 
 
 /******************************************************************************
-      函数说明：LCD写入命令
-      入口数据：dat 写入的命令
-      返回值：  无
+    Function description: LCD write command
+      Entry data: command written by dat
+      Return value: None
 ******************************************************************************/
 void LCD_WR_REG(u8 dat)
 {
-    OLED_DC_Clr();//写命令
+    OLED_DC_Clr();//write command
     LCD_Writ_Bus(dat);
 }
 
 
 /******************************************************************************
-      函数说明：设置起始和结束地址
-      入口数据：x1,x2 设置列的起始和结束地址
-                y1,y2 设置行的起始和结束地址
-      返回值：  无
+    Function description: Set the start and end addresses
+      Entry data: x1,x2 sets the start and end addresses of the column
+                y1,y2 set the start and end addresses of the line
+      Return value: None
 ******************************************************************************/
 void LCD_Address_Set(u16 x1,u16 y1,u16 x2,u16 y2)
 {
@@ -229,9 +229,9 @@ void LCD_Config(pico_st7735_80x160_config_t* config)
 }
 
 /******************************************************************************
-      函数说明：LCD初始化函数
-      入口数据：无
-      返回值：  无
+    Function description: LCD initialization function
+      Entry data: None
+      Return value: None
 ******************************************************************************/
 void LCD_Init(void)
 {
@@ -367,9 +367,9 @@ void LCD_Init(void)
 }
 
 /******************************************************************************
-      函数说明：LCD清屏函数
-      入口数据：无
-      返回值：  无
+      Function description：LCD clear screen function
+      Entry data: None
+      Return value: None
 ******************************************************************************/
 void LCD_Clear(u16 Color)
 {
@@ -425,11 +425,11 @@ u16 LCD_H()
 
 #if 0
 /******************************************************************************
-      函数说明：LCD显示汉字
-      入口数据：x,y   起始坐标
-                index 汉字的序号
-                size  字号
-      返回值：  无
+    Function description: LCD displays Chinese characters
+      Entry data: x,y starting coordinates
+                index Chinese character serial number
+                size font size
+      Return value: None
 ******************************************************************************/
 void LCD_ShowChinese(u16 x,u16 y,u8 index,u8 size,u16 color)
 {
@@ -460,21 +460,21 @@ void LCD_ShowChinese(u16 x,u16 y,u8 index,u8 size,u16 color)
 
 
 /******************************************************************************
-      函数说明：LCD显示汉字
-      入口数据：x,y   起始坐标
-      返回值：  无
+    Function description: LCD displays Chinese characters
+      Entry data: x,y starting coordinates
+      Return value: None
 ******************************************************************************/
 void LCD_DrawPoint(u16 x,u16 y,u16 color)
 {
-    LCD_Address_Set(x,y,x,y);//设置光标位置
+    LCD_Address_Set(x,y,x,y);//Set cursor position
     LCD_WR_DATA(color);
 }
 
 
 /******************************************************************************
-      函数说明：LCD画一个大的点
-      入口数据：x,y   起始坐标
-      返回值：  无
+    Function description: Draw a large dot on LCD
+      Entry data: x,y starting coordinates
+      Return value: None
 ******************************************************************************/
 void LCD_DrawPoint_big(u16 x,u16 y,u16 color)
 {
@@ -483,48 +483,48 @@ void LCD_DrawPoint_big(u16 x,u16 y,u16 color)
 
 
 /******************************************************************************
-      函数说明：在指定区域填充颜色
-      入口数据：xsta,ysta   起始坐标
-                xend,yend   终止坐标
-      返回值：  无
+    Function description: Fill the specified area with color
+      Entry data: xsta, ysta starting coordinates
+                xend,yend end coordinates
+      Return value: None
 ******************************************************************************/
 void LCD_Fill(u16 xsta,u16 ysta,u16 xend,u16 yend,u16 color)
 {
     u16 i,j;
-    LCD_Address_Set(xsta,ysta,xend,yend);      //设置光标位置
+    LCD_Address_Set(xsta,ysta,xend,yend);      //Set cursor position
     for(i=ysta;i<=yend;i++)
     {
-        for(j=xsta;j<=xend;j++)LCD_WR_DATA(color);//设置光标位置
+        for(j=xsta;j<=xend;j++)LCD_WR_DATA(color);//Set cursor position
     }
 }
 
 
 /******************************************************************************
-      函数说明：画线
-      入口数据：x1,y1   起始坐标
-                x2,y2   终止坐标
-      返回值：  无
+    Function description: line drawing
+      Entry data: x1, y1 starting coordinates
+                x2,y2 end coordinates
+      Return value: None
 ******************************************************************************/
 void LCD_DrawLine(u16 x1,u16 y1,u16 x2,u16 y2,u16 color)
 {
     u16 t;
     int xerr=0,yerr=0,delta_x,delta_y,distance;
     int incx,incy,uRow,uCol;
-    delta_x=x2-x1; //计算坐标增量
+    delta_x=x2-x1; //Calculate coordinate increment
     delta_y=y2-y1;
-    uRow=x1;//画线起点坐标
+    uRow=x1;//Coordinates of starting point of drawing line
     uCol=y1;
-    if(delta_x>0)incx=1; //设置单步方向
-    else if (delta_x==0)incx=0;//垂直线
+    if(delta_x>0)incx=1; //Set single step direction
+    else if (delta_x==0)incx=0;//vertical line
     else {incx=-1;delta_x=-delta_x;}
     if(delta_y>0)incy=1;
-    else if (delta_y==0)incy=0;//水平线
+    else if (delta_y==0)incy=0;//horizontal line
     else {incy=-1;delta_y=-delta_y;}
-    if(delta_x>delta_y)distance=delta_x; //选取基本增量坐标轴
+    if(delta_x>delta_y)distance=delta_x; //Select base incremental axis
     else distance=delta_y;
     for(t=0;t<distance+1;t++)
     {
-        LCD_DrawPoint(uRow,uCol,color);//画点
+        LCD_DrawPoint(uRow,uCol,color);//painting point
         xerr+=delta_x;
         yerr+=delta_y;
         if(xerr>distance)
@@ -542,10 +542,10 @@ void LCD_DrawLine(u16 x1,u16 y1,u16 x2,u16 y2,u16 color)
 
 
 /******************************************************************************
-      函数说明：画矩形
-      入口数据：x1,y1   起始坐标
-                x2,y2   终止坐标
-      返回值：  无
+    Function description: Draw a rectangle
+      Entry data: x1, y1 starting coordinates
+                x2,y2 end coordinates
+      Return value: None
 ******************************************************************************/
 void LCD_DrawRectangle(u16 x1, u16 y1, u16 x2, u16 y2,u16 color)
 {
@@ -557,10 +557,10 @@ void LCD_DrawRectangle(u16 x1, u16 y1, u16 x2, u16 y2,u16 color)
 
 
 /******************************************************************************
-      函数说明：画圆
-      入口数据：x0,y0   圆心坐标
-                r       半径
-      返回值：  无
+    Function description: draw a circle
+      Entrance data: x0, y0 circle center coordinates
+                r radius
+      Return value: None
 ******************************************************************************/
 void Draw_Circle(u16 x0,u16 y0,u8 r,u16 color)
 {
@@ -578,7 +578,7 @@ void Draw_Circle(u16 x0,u16 y0,u8 r,u16 color)
         LCD_DrawPoint(x0+a,y0+b,color);             //6
         LCD_DrawPoint(x0-b,y0+a,color);             //7
         a++;
-        if((a*a+b*b)>(r*r))//判断要画的点是否过远
+        if((a*a+b*b)>(r*r))//Determine whether the point to be drawn is too far away
         {
             b--;
         }
@@ -587,25 +587,25 @@ void Draw_Circle(u16 x0,u16 y0,u8 r,u16 color)
 
 
 /******************************************************************************
-      函数说明：显示字符
-      入口数据：x,y    起点坐标
-                num    要显示的字符
-                mode   1叠加方式  0非叠加方式
-      返回值：  无
+    Function description: display characters
+      Entry data: x,y starting point coordinates
+                num characters to display
+                mode 1 superposition mode 0 non-superposition mode
+      Return value: None
 ******************************************************************************/
 void LCD_ShowChar(u16 x,u16 y,u8 num,u8 mode,u16 color)
 {
     u8 temp;
     u8 pos,t;
       u16 x0=x;
-    if(x>LCD_W()-8||y>LCD_H()-16)return;        //设置窗口
-    num=num-' ';//得到偏移后的值
-    LCD_Address_Set(x,y,x+8-1,y+16-1);      //设置光标位置
-    if(!mode) //非叠加方式
+    if(x>LCD_W()-8||y>LCD_H()-16)return;        //settings window
+    num=num-' ';//
+    LCD_Address_Set(x,y,x+8-1,y+16-1);      //Set cursor position
+    if(!mode) //non-superposition method
     {
         for(pos=0;pos<16;pos++)
         {
-            temp=asc2_1608[(u16)num*16+pos];         //调用1608字体
+            temp=asc2_1608[(u16)num*16+pos];         //Call 1608 font
             for(t=0;t<8;t++)
             {
                 if(temp&0x01)LCD_WR_DATA(color);
@@ -616,14 +616,14 @@ void LCD_ShowChar(u16 x,u16 y,u8 num,u8 mode,u16 color)
             x=x0;
             y++;
         }
-    }else//叠加方式
+    }else//Overlay method
     {
         for(pos=0;pos<16;pos++)
         {
-            temp=asc2_1608[(u16)num*16+pos];         //调用1608字体
+            temp=asc2_1608[(u16)num*16+pos];         //Call 1608 font
             for(t=0;t<8;t++)
             {
-                if(temp&0x01)LCD_DrawPoint(x+t,y+pos,color);//画一个点
+                if(temp&0x01)LCD_DrawPoint(x+t,y+pos,color);//draw a dot
                 temp>>=1;
             }
         }
@@ -632,10 +632,10 @@ void LCD_ShowChar(u16 x,u16 y,u8 num,u8 mode,u16 color)
 
 
 /******************************************************************************
-      函数说明：显示字符串
-      入口数据：x,y    起点坐标
-                *p     字符串起始地址
-      返回值：  无
+    Function description: display string
+      Entry data: x,y starting point coordinates
+                *p string starting address
+      Return value: None
 ******************************************************************************/
 void LCD_ShowString(u16 x,u16 y,const u8 *p,u16 color)
 {
@@ -651,11 +651,11 @@ void LCD_ShowString(u16 x,u16 y,const u8 *p,u16 color)
 
 
 /******************************************************************************
-      函数说明：显示数字
-      入口数据：x,y    起点坐标
-                num    要显示的数字
-                len    要显示的数字个数
-      返回值：  无
+    Function description: display numbers
+      Entry data: x,y starting point coordinates
+                num number to display
+                len The number of digits to be displayed
+      Return value: None
 ******************************************************************************/
 void LCD_ShowNum(u16 x,u16 y,u16 num,u8 len,u16 color)
 {
@@ -679,11 +679,11 @@ void LCD_ShowNum(u16 x,u16 y,u16 num,u8 len,u16 color)
 
 
 /******************************************************************************
-      函数说明：显示小数
-      入口数据：x,y    起点坐标
-                num    要显示的小数
-                len    要显示的数字个数
-      返回值：  无
+    Function description: display decimals
+      Entry data: x,y starting point coordinates
+                num decimal to display
+                len The number of digits to be displayed
+      Return value: None
 ******************************************************************************/
 void LCD_ShowNum1(u16 x,u16 y,float num,u8 len,u16 color)
 {
@@ -706,9 +706,9 @@ void LCD_ShowNum1(u16 x,u16 y,float num,u8 len,u16 color)
 
 
 /******************************************************************************
-      函数说明：显示40x40图片
-      入口数据：x,y    起点坐标
-      返回值：  无
+    Function description: display 40x40 picture
+      Entry data: x,y starting point coordinates
+      Return value: None
 ******************************************************************************/
 void LCD_ShowPicture(u16 x1, u16 y1, u16 x2, u16 y2, u8 *image)
 {
