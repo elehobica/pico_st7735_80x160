@@ -1,10 +1,10 @@
 ![ST7735 Test](doc/pico_st7735_80x160_breadboard.jpg)
 ![waveshare_rp2040_lcd_096](doc/waveshare_rp2040-lcd-096.jpg)
 
-# Raspberry Pi Pico ST7735 80x160 LCD Library
+# ST7735 80x160 LCD Library for Raspberry Pi Pico / Pico 2
 
 ## Overview
-ST7735 80x160 LCD display library for Raspberry Pi Pico
+ST7735 80x160 LCD display library for Raspberry Pi Pico / Pico 2
 
 This project supports:
 * ST7735 80x160 LCD
@@ -12,6 +12,7 @@ This project supports:
 
 ## Supported Board
 * Raspberry Pi Pico
+* Raspberry Pi Pico 2
 * ST7735S 80x160 LCD
 * Waveshare RP2040-LCD-0.96 Board (ST7735S 80x160 LCD build-in)
 
@@ -74,20 +75,22 @@ Uncomment #define BOARD_WAVESHARE_RP2040_LCD_096 in lcd.h
 ```
 > cd pico_st7735_80x160\test
 > mkdir build && cd build
-> cmake -G "NMake Makefiles" ..
+> cmake -G "NMake Makefiles" ..  ; (for Raspberry Pi Pico 1 series)
+> cmake -G "NMake Makefiles" -DPICO_PLATFORM=rp2350 -DPICO_BOARD=pico2 ..  ; (for Raspberry Pi Pico 2)
 > nmake
 ```
-* Put "pico_st7735_80x160.uf2" on RPI-RP2 drive
+* Put "*.uf2" on RPI-RP2 or RP2350 drive
 ### Linux
 * Build is confirmed with [pico-sdk-dev-docker:sdk-2.1.1-1.0.0]( https://hub.docker.com/r/elehobica/pico-sdk-dev-docker)
 * Confirmed with cmake-3.22.1 and arm-none-eabi-gcc (15:10.3-2021.07-4) 10.3.1
 ```
 $ cd pico_st7735_80x160/test
 $ mkdir build && cd build
-$ cmake ..
+$ cmake ..  # (for Raspberry Pi Pico 1 series)
+$ cmake -DPICO_PLATFORM=rp2350 -DPICO_BOARD=pico2 ..  # (for Raspberry Pi Pico 2)
 $ make -j4
 ```
-* Download "pico_st7735_80x160.uf2" on RPI-RP2 drive
+* Download "*.uf2" on RPI-RP2 or RP2350 drive
 
 ## Configuration
 Configure library settings by `LCD_Config()` with `pico_st7735_80x160_config_t`
@@ -111,12 +114,6 @@ pico_st7735_80x160_config_t lcd_cfg = {
 };
 LCD_Config(&lcd_cfg);
 ```
-
-## Backlight Control from Serial Terminal
-When scrolling text display appears at demo final, program accepts Serial Terminal control.
-* '+' to increase backlight level
-* '-' to decrease backlight level
-* 'r' to repeat demo
 
 ## Application Example
 * [RPi_Pico_WAV_Player](https://github.com/elehobica/RPi_Pico_WAV_Player)
