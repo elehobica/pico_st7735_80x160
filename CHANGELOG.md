@@ -5,12 +5,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [1.0.2] - 2025-03-03
 ### Changed
 * Remove Icon font from library
+* OLED_BLK_Set_PWM(0) leads changing into GPIO mode to set false
 * Support pico-sdk 2.0.0
 
-### Changed
-* OLED_BLK_Set_PWM(0) leads changing into GPIO mode to set false
+### Added
+* Select LCD config type from Serial in test
 
 ## [1.0.1] - 2024-03-31
 ### Added
