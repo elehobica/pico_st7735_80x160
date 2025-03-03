@@ -5,10 +5,6 @@
 #include "hardware/uart.h"
 #include "lcd_extra.h"
 
-// 0 ~ 2: Raspberry Pi Pico
-// 3:     Waveshare RP2040-LCD-0.96
-#define LCD_CFG_CASE 0
-
 static void error_blink(uint led, int count)
 {
     while (true) {
@@ -160,96 +156,100 @@ int main()
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
 
-#if LCD_CFG_CASE == 0
-    pico_st7735_80x160_config_t lcd_cfg = {
-        SPI_CLK_FREQ_DEFAULT,
-        spi1,
-        PIN_LCD_SPI1_CS_DEFAULT,
-        PIN_LCD_SPI1_SCK_DEFAULT,
-        PIN_LCD_SPI1_MOSI_DEFAULT,
-        PIN_LCD_DC_DEFAULT,
-        PIN_LCD_RST_DEFAULT,
-        PIN_LCD_BLK_DEFAULT,
-        PWM_BLK_DEFAULT,
-        INVERSION_DEFAULT,  // 0: non-color-inversion, 1: color-inversion
-        RGB_ORDER_DEFAULT,  // 0: RGB, 1: BGR
-        ROTATION_DEFAULT,
-        H_OFS_DEFAULT,
-        V_OFS_DEFAULT,
-        X_MIRROR_DEFAULT
+    pico_st7735_80x160_config_t lcd_cfg[] = {
+        {   // LCD_CFG_CASE: 0
+            SPI_CLK_FREQ_DEFAULT,
+            spi1,
+            PIN_LCD_SPI1_CS_DEFAULT,
+            PIN_LCD_SPI1_SCK_DEFAULT,
+            PIN_LCD_SPI1_MOSI_DEFAULT,
+            PIN_LCD_DC_DEFAULT,
+            PIN_LCD_RST_DEFAULT,
+            PIN_LCD_BLK_DEFAULT,
+            PWM_BLK_DEFAULT,
+            INVERSION_DEFAULT,  // 0: non-color-inversion, 1: color-inversion
+            RGB_ORDER_DEFAULT,  // 0: RGB, 1: BGR
+            ROTATION_DEFAULT,
+            H_OFS_DEFAULT,
+            V_OFS_DEFAULT,
+            X_MIRROR_DEFAULT
+        },
+        {   // LCD_CFG_CASE: 1
+            SPI_CLK_FREQ_DEFAULT,
+            spi1,
+            PIN_LCD_SPI1_CS_DEFAULT,
+            PIN_LCD_SPI1_SCK_DEFAULT,
+            PIN_LCD_SPI1_MOSI_DEFAULT,
+            PIN_LCD_DC_DEFAULT,
+            PIN_LCD_RST_DEFAULT,
+            PIN_LCD_BLK_DEFAULT,
+            PWM_BLK_DEFAULT,
+            0,  //INVERSION_DEFAULT,  // 0: non-color-inversion, 1: color-inversion
+            RGB_ORDER_DEFAULT,  // 0: RGB, 1: BGR
+            ROTATION_DEFAULT,
+            0,  //H_OFS_DEFAULT,
+            24,  //V_OFS_DEFAULT
+            X_MIRROR_DEFAULT
+        },
+        {   // LCD_CFG_CASE: 2
+            SPI_CLK_FREQ_DEFAULT,
+            spi1,
+            PIN_LCD_SPI1_CS_DEFAULT,
+            PIN_LCD_SPI1_SCK_DEFAULT,
+            PIN_LCD_SPI1_MOSI_DEFAULT,
+            PIN_LCD_DC_DEFAULT,
+            PIN_LCD_RST_DEFAULT,
+            PIN_LCD_BLK_DEFAULT,
+            PWM_BLK_DEFAULT,
+            INVERSION_DEFAULT,  // 0: non-color-inversion, 1: color-inversion
+            0,  //RGB_ORDER_DEFAULT,  // 0: RGB, 1: BGR
+            ROTATION_DEFAULT,
+            H_OFS_DEFAULT,
+            V_OFS_DEFAULT,
+            1  //X_MIRROR_DEFAULT
+        },
+        {   // LCD_CFG_CASE: 3
+            SPI_CLK_FREQ_DEFAULT,
+            spi1,
+            PIN_LCD_SPI1_CS_WAVESHARE,
+            PIN_LCD_SPI1_SCK_WAVESHARE,
+            PIN_LCD_SPI1_MOSI_WAVESHARE,
+            PIN_LCD_DC_WAVESHARE,
+            PIN_LCD_RST_WAVESHARE,
+            PIN_LCD_BLK_WAVESHARE,
+            PWM_BLK_DEFAULT,
+            INVERSION_DEFAULT,  // 0: non-color-inversion, 1: color-inversion
+            RGB_ORDER_DEFAULT,  // 0: RGB, 1: BGR
+            ROTATION_DEFAULT,
+            H_OFS_DEFAULT,
+            V_OFS_DEFAULT,
+            X_MIRROR_DEFAULT
+        }
     };
-#elif LCD_CFG_CASE == 1
-    pico_st7735_80x160_config_t lcd_cfg = {
-        SPI_CLK_FREQ_DEFAULT,
-        spi1,
-        PIN_LCD_SPI1_CS_DEFAULT,
-        PIN_LCD_SPI1_SCK_DEFAULT,
-        PIN_LCD_SPI1_MOSI_DEFAULT,
-        PIN_LCD_DC_DEFAULT,
-        PIN_LCD_RST_DEFAULT,
-        PIN_LCD_BLK_DEFAULT,
-        PWM_BLK_DEFAULT,
-        0,  //INVERSION_DEFAULT,  // 0: non-color-inversion, 1: color-inversion
-        RGB_ORDER_DEFAULT,  // 0: RGB, 1: BGR
-        ROTATION_DEFAULT,
-        0,  //H_OFS_DEFAULT,
-        24,  //V_OFS_DEFAULT
-        X_MIRROR_DEFAULT
-    };
-#elif LCD_CFG_CASE == 2
-    pico_st7735_80x160_config_t lcd_cfg = {
-        SPI_CLK_FREQ_DEFAULT,
-        spi1,
-        PIN_LCD_SPI1_CS_DEFAULT,
-        PIN_LCD_SPI1_SCK_DEFAULT,
-        PIN_LCD_SPI1_MOSI_DEFAULT,
-        PIN_LCD_DC_DEFAULT,
-        PIN_LCD_RST_DEFAULT,
-        PIN_LCD_BLK_DEFAULT,
-        PWM_BLK_DEFAULT,
-        INVERSION_DEFAULT,  // 0: non-color-inversion, 1: color-inversion
-        0,  //RGB_ORDER_DEFAULT,  // 0: RGB, 1: BGR
-        ROTATION_DEFAULT,
-        H_OFS_DEFAULT,
-        V_OFS_DEFAULT,
-        1  //X_MIRROR_DEFAULT
-    };
-#elif LCD_CFG_CASE == 3
-    pico_st7735_80x160_config_t lcd_cfg = {
-        SPI_CLK_FREQ_DEFAULT,
-        spi1,
-        PIN_LCD_SPI1_CS_WAVESHARE,
-        PIN_LCD_SPI1_SCK_WAVESHARE,
-        PIN_LCD_SPI1_MOSI_WAVESHARE,
-        PIN_LCD_DC_WAVESHARE,
-        PIN_LCD_RST_WAVESHARE,
-        PIN_LCD_BLK_WAVESHARE,
-        PWM_BLK_DEFAULT,
-        INVERSION_DEFAULT,  // 0: non-color-inversion, 1: color-inversion
-        RGB_ORDER_DEFAULT,  // 0: RGB, 1: BGR
-        ROTATION_DEFAULT,
-        H_OFS_DEFAULT,
-        V_OFS_DEFAULT,
-        X_MIRROR_DEFAULT
-    };
-#endif
 
     // Discard any input from Serial
     while (uart_is_readable(uart0)) {
         uart_getc(uart0);
     }
     printf("\n");
-    //printf("Type any character to start\n");
-    //while (!uart_is_readable_within_us(uart0, 1000));
-
     printf("========================\n");
     printf("== pico_st7735_80x160 ==\n");
     printf("========================\n");
-    printf("-: ncrease back light\n");
-    printf("=: decrease back light\n");
-    printf("r: repeat demo\n");
+    printf("Type 0 ~ 3 to configure LCD and start\n");
+    printf("  0: ST7735 80x160 LCD type 0\n");
+    printf("  1: ST7735 80x160 LCD type 1\n");
+    printf("  2: ST7735 80x160 LCD type 2\n");
+    printf("  3: Waveshare RP2040-LCD-0.96\n");
 
-    LCD_Config(&lcd_cfg);
+    int c = 0;
+    while (c != '0' && c != '1' && c != '2' && c != '3') {
+        c = uart_getc(uart0);
+    }
+
+    printf("  +, =: increase back light\n");
+    printf("  -: decrease back light\n");
+
+    LCD_Config(&lcd_cfg[c - '0']);
     LCD_Init();
     u8 bl_val = OLED_BLK_Get_PWM();
 
