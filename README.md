@@ -3,6 +3,8 @@
 
 # ST7735 80x160 LCD Library for Raspberry Pi Pico / Pico 2
 
+[![Build](https://github.com/elehobica/pico_st7735_80x160/actions/workflows/build-binaries.yml/badge.svg)](https://github.com/elehobica/pico_st7735_80x160/actions/workflows/build-binaries.yml)
+
 ## Overview
 ST7735 80x160 LCD display library for Raspberry Pi Pico / Pico 2
 
