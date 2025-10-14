@@ -36,8 +36,6 @@ This project supports:
 
 ### ST7735S 80x160 LCD (Waveshare RP2040-LCD-0.96 Board)
 
-Uncomment #define BOARD_WAVESHARE_RP2040_LCD_096 in lcd.h
-
 | Pin # | Pin Name | Function | Signal Name |
 ----|----|----|----
 |11 | GP8 | GPIO | DC |
