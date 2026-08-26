@@ -6,9 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
-* Add support pico-sdk 2.1.1
+* Add support pico-sdk 2.3.0
 * Add support Raspberry Pi Pico 2
 * Add GitHub Actions for build and release
+* Add build_docker.sh
 
 ## [1.0.2] - 2025-03-03
 ### Changed
