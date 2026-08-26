@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [1.0.3] - 2026-08-26
 ### Added
 * Add support pico-sdk 2.3.0
 * Add support Raspberry Pi Pico 2
